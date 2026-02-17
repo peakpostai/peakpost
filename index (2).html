@@ -1,0 +1,2522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeakPost - Premium Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        
+        /* ========================================
+           CSS VARIABLES FOR THEMING
+           ======================================== */
+        :root {
+            --bg-primary: #0f0f1e;
+            --bg-secondary: rgba(30, 30, 46, 0.8);
+            --bg-tertiary: rgba(45, 45, 67, 0.6);
+            --bg-hover: rgba(55, 55, 80, 0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --text-tertiary: #cbd5e0;
+            --border-color: rgba(102, 126, 234, 0.2);
+            --border-hover: rgba(102, 126, 234, 0.4);
+            --gradient-start: #667eea;
+            --gradient-mid: #764ba2;
+            --gradient-end: #f093fb;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --card-bg: rgba(30, 30, 46, 0.8);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(255, 255, 255, 0.95);
+            --bg-tertiary: rgba(248, 250, 252, 0.95);
+            --bg-hover: rgba(241, 245, 249, 0.95);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border-color: rgba(148, 163, 184, 0.3);
+            --border-hover: rgba(102, 126, 234, 0.5);
+            --shadow-color: rgba(15, 23, 42, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.98);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* ========================================
+           DEVICE SELECTION SCREEN - PREMIUM DESIGN
+           ======================================== */
+        
+        .device-selection-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .device-selection-overlay.hidden {
+            display: none;
+        }
+
+        .device-selection-container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            animation: fadeInScale 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .device-selection-header {
+            margin-bottom: 20px;
+        }
+
+        .device-selection-title {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 50%, var(--gradient-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            position: relative;
+            display: inline-block;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes titlePulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.4));
+            }
+            50% { 
+                filter: drop-shadow(0 0 35px rgba(102, 126, 234, 0.6));
+            }
+        }
+        
+        .device-selection-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gradient-start), var(--gradient-mid), transparent);
+            border-radius: 2px;
+            animation: underlineGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes underlineGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .device-selection-subtitle {
+            font-size: 1.4em;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 50px;
+        }
+
+        .device-cards-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .device-card {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border: 3px solid var(--border-color);
+            border-radius: 30px;
+            padding: 60px 40px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .device-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .device-card:hover::before {
+            opacity: 1;
+        }
+
+        .device-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--border-hover);
+            box-shadow: 0 30px 80px rgba(102, 126, 234, 0.3);
+        }
+
+        .device-card:active {
+            transform: translateY(-8px) scale(0.98);
+        }
+
+        .device-card.recommended {
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.2);
+        }
+
+        .device-card.recommended::after {
+            content: '⭐ RECOMMENDED';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 0.75em;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 12px 30px rgba(255, 215, 0, 0.6); }
+        }
+
+        .device-card-icon {
+            font-size: 5em;
+            margin-bottom: 25px;
+            display: block;
+            filter: drop-shadow(0 10px 20px rgba(102, 126, 234, 0.3));
+        }
+
+        .device-card-title {
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .device-card-description {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .device-card-features {
+            list-style: none;
+            text-align: left;
+            margin-top: 25px;
+        }
+
+        .device-card-features li {
+            padding: 10px 0;
+            padding-left: 30px;
+            color: var(--text-tertiary);
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .device-card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--gradient-start);
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .device-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(0.7);
+        }
+
+        .device-card.disabled::before {
+            display: none;
+        }
+
+        .device-card.disabled::after {
+            content: '🚧 COMING SOON';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 0.75em;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .device-card.disabled:hover {
+            transform: none;
+            border-color: var(--border-color);
+            box-shadow: none;
+        }
+
+        .device-selection-footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .device-selection-note {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .device-selection-note strong {
+            color: var(--gradient-start);
+        }
+
+        /* ========================================
+           SETTINGS BUTTON & PANEL
+           ======================================== */
+        
+        .settings-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            cursor: pointer;
+            z-index: 5000;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .settings-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+            border-color: var(--border-hover);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .settings-btn:active {
+            transform: rotate(90deg) scale(0.95);
+        }
+
+        .settings-btn.show {
+            display: flex;
+        }
+
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 5999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .settings-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 420px;
+            height: 100%;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            border-left: 2px solid var(--border-color);
+            z-index: 6000;
+            padding: 35px;
+            overflow-y: auto;
+            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: -20px 0 60px var(--shadow-color);
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .settings-header h2 {
+            font-size: 2.2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .close-settings {
+            width: 45px;
+            height: 45px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .close-settings:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+            transform: rotate(90deg);
+        }
+
+        .close-settings:active {
+            transform: rotate(90deg) scale(0.9);
+        }
+
+        .settings-section {
+            margin-bottom: 40px;
+        }
+
+        .settings-section h3 {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-section p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .settings-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .settings-option {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 18px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .settings-option:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-3px);
+        }
+
+        .settings-option:active {
+            transform: translateY(-1px);
+        }
+
+        .settings-option.active {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 100%);
+            border-color: var(--gradient-start);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            color: #fff;
+        }
+
+        .settings-option .icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 5px 15px rgba(102, 126, 234, 0.3));
+        }
+
+        .settings-option .label {
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .settings-option.active .label {
+            color: #fff;
+        }
+
+        /* Mobile Responsive for Device Selection */
+        @media (max-width: 768px) {
+            .device-selection-logo {
+                width: 70px;
+                height: 70px;
+                font-size: 35px;
+            }
+
+            .device-selection-title {
+                font-size: 2.2em;
+            }
+
+            .device-selection-subtitle {
+                font-size: 1.1em;
+                margin-bottom: 35px;
+            }
+
+            .device-cards-wrapper {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .device-card {
+                padding: 45px 30px;
+            }
+
+            .device-card-icon {
+                font-size: 4em;
+            }
+
+            .device-card-title {
+                font-size: 1.8em;
+            }
+
+            .device-card-description {
+                font-size: 1em;
+            }
+
+            .device-card.recommended::after {
+                font-size: 0.7em;
+                padding: 6px 14px;
+                top: 15px;
+                right: 15px;
+            }
+
+            /* Settings Mobile */
+            .settings-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.4em;
+                top: 20px;
+                right: 20px;
+            }
+
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+                padding: 30px 20px;
+            }
+
+            .settings-header h2 {
+                font-size: 1.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .device-selection-title {
+                font-size: 1.8em;
+            }
+
+            .device-selection-subtitle {
+                font-size: 1em;
+            }
+
+            .device-card {
+                padding: 35px 25px;
+            }
+
+            .device-card-icon {
+                font-size: 3.5em;
+            }
+
+            .device-card-title {
+                font-size: 1.5em;
+            }
+
+            .device-card-features li {
+                font-size: 0.9em;
+            }
+
+            /* Settings Extra Small */
+            .settings-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3em;
+            }
+
+            .settings-header h2 {
+                font-size: 1.5em;
+            }
+
+            .settings-section h3 {
+                font-size: 1.2em;
+            }
+
+            .settings-option {
+                padding: 20px 15px;
+            }
+
+            .settings-option .icon {
+                font-size: 2em;
+            }
+
+            .settings-option .label {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Animated gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 50%, var(--gradient-end) 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.1;
+            z-index: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        [data-theme="light"] .bg-gradient {
+            opacity: 0.08;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.3));
+            }
+            50% { 
+                filter: drop-shadow(0 0 25px rgba(102, 126, 234, 0.5));
+            }
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2, #f093fb, transparent);
+            border-radius: 2px;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { 
+                opacity: 0.5;
+                width: 70%;
+            }
+            50% { 
+                opacity: 1;
+                width: 85%;
+            }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #a0aec0;
+            font-weight: 400;
+        }
+
+        /* Card */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px var(--shadow-color);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        [data-theme="light"] .card {
+            border: 2px solid var(--border-color);
+            box-shadow: 0 10px 40px var(--shadow-color);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="light"] .card:hover {
+            box-shadow: 0 15px 50px var(--shadow-color);
+        }
+
+        .card:hover {
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Section styling */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .section-title {
+            flex: 1;
+        }
+
+        .section-title h3 {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .section-title p {
+            color: #a0aec0;
+            font-size: 0.95em;
+        }
+
+        /* Checkbox options */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 24px;
+            background: rgba(45, 45, 67, 0.6);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        [data-theme="light"] .checkbox-label {
+            background: rgba(248, 250, 252, 0.9);
+            border: 2px solid rgba(203, 213, 225, 0.5);
+        }
+
+        .checkbox-label:hover {
+            background: rgba(55, 55, 80, 0.8);
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        [data-theme="light"] .checkbox-label:hover {
+            background: rgba(241, 245, 249, 1);
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + .checkbox-label {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        [data-theme="light"] .checkbox-item input[type="checkbox"]:checked + .checkbox-label {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.25);
+        }
+
+        .checkbox-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="light"] .checkbox-icon {
+            border-color: rgba(102, 126, 234, 0.7);
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + .checkbox-label .checkbox-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .checkbox-icon::after {
+            content: "✓";
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + .checkbox-label .checkbox-icon::after {
+            opacity: 1;
+        }
+
+        .checkbox-text {
+            font-weight: 500;
+            font-size: 1.05em;
+        }
+
+        /* Button options */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 20px 28px;
+            background: rgba(45, 45, 67, 0.6);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        [data-theme="light"] .option-btn {
+            background: rgba(248, 250, 252, 0.9);
+            border: 2px solid rgba(203, 213, 225, 0.5);
+            color: var(--text-primary);
+        }
+
+        .option-btn:hover {
+            background: rgba(55, 55, 80, 0.8);
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        [data-theme="light"] .option-btn:hover {
+            background: rgba(241, 245, 249, 1);
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            color: #fff;
+        }
+
+        [data-theme="light"] .option-btn.selected {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.35);
+        }
+
+        .option-btn small {
+            display: block;
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+
+        /* Niche grid - special 5 column layout */
+        .niche-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .niche-btn {
+            padding: 16px 20px;
+            background: rgba(45, 45, 67, 0.6);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        [data-theme="light"] .niche-btn {
+            background: rgba(248, 250, 252, 0.9);
+            border: 2px solid rgba(203, 213, 225, 0.5);
+            color: var(--text-primary);
+        }
+
+        .niche-btn:hover {
+            background: rgba(55, 55, 80, 0.8);
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        [data-theme="light"] .niche-btn:hover {
+            background: rgba(241, 245, 249, 1);
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .niche-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            color: #fff;
+        }
+
+        [data-theme="light"] .niche-btn.selected {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.35);
+        }
+
+        /* Calculate button */
+        .calculate-wrapper {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .calculate-btn {
+            padding: 24px 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1.4em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .calculate-btn:hover::before {
+            left: 100%;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.6);
+        }
+
+        [data-theme="light"] .calculate-btn {
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.35);
+        }
+
+        [data-theme="light"] .calculate-btn:hover {
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.5);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            padding: 16px 50px;
+            background: transparent;
+            border: 2px solid rgba(102, 126, 234, 0.4);
+            border-radius: 16px;
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .reset-btn:hover {
+            border-color: rgba(239, 68, 68, 0.6);
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Error message */
+        .error-box {
+            display: none;
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            color: #fca5a5;
+            font-weight: 500;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Results section */
+        .results-section {
+            display: none;
+            animation: fadeInUp 0.8s ease;
+            margin-top: 60px;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+        }
+
+        .results-header h2 {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .results-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .info-badge strong {
+            opacity: 0.8;
+            margin-right: 8px;
+        }
+
+        /* Time slots */
+        .time-slot {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        [data-theme="light"] .time-slot {
+            border: 2px solid var(--border-color);
+        }
+
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+        }
+
+        .time-slot.gold::before {
+            background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+        }
+
+        .time-slot.silver::before {
+            background: linear-gradient(180deg, #E8E8E8 0%, #A0A0A0 100%);
+        }
+
+        .time-slot.bronze::before {
+            background: linear-gradient(180deg, #CD7F32 0%, #8B4513 100%);
+        }
+
+        .time-slot:hover {
+            transform: translateX(5px);
+            border-color: rgba(102, 126, 234, 0.6);
+        }
+
+        .time-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .time-info {
+            flex: 1;
+        }
+
+        .medal {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .time-display {
+            font-size: 2.2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .time-range {
+            color: #a0aec0;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .score-display {
+            text-align: right;
+        }
+
+        .score-number {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .score-label {
+            color: #a0aec0;
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(45, 45, 67, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 1s ease;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .reason-card {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .reason-card strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #667eea;
+        }
+
+        .reason-card p {
+            color: #cbd5e0;
+            line-height: 1.6;
+        }
+
+        /* Tips section */
+        .tips-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 40px;
+        }
+
+        .tips-box h3 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tips-box ul {
+            list-style: none;
+        }
+
+        .tips-box li {
+            padding: 15px 0;
+            padding-left: 40px;
+            position: relative;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            line-height: 1.6;
+        }
+
+        .tips-box li:last-child {
+            border-bottom: none;
+        }
+
+        .tips-box li::before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+            font-size: 1.3em;
+        }
+
+        /* Backup times */
+        .backup-box {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 30px;
+        }
+
+        .backup-box h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #4ade80;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .backup-box p {
+            color: #cbd5e0;
+            margin-bottom: 20px;
+            font-size: 1.05em;
+        }
+
+        .backup-box ul {
+            list-style: none;
+        }
+
+        .backup-box li {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .backup-box li:last-child {
+            border-bottom: none;
+        }
+
+        .backup-box strong {
+            color: #4ade80;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        /* Disclaimer box */
+        .disclaimer-box {
+            background: rgba(251, 191, 36, 0.1);
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+
+        [data-theme="light"] .disclaimer-box {
+            background: rgba(251, 191, 36, 0.08);
+            border-color: rgba(251, 191, 36, 0.4);
+        }
+
+        .disclaimer-box h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        [data-theme="light"] .disclaimer-box h3 {
+            color: #d97706;
+        }
+
+        .disclaimer-box p {
+            color: var(--text-tertiary);
+            font-size: 0.95em;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .disclaimer-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* PeakPost Pro Teaser */
+        .pro-teaser {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.4);
+            border-radius: 24px;
+            padding: 40px;
+            margin-top: 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="light"] .pro-teaser {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .pro-teaser::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .pro-teaser-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pro-teaser h3 {
+            font-size: 2.2em;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 50%, var(--gradient-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pro-teaser p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .pro-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+            animation: pulse-badge 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pro-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .pro-feature {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .pro-feature:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-hover);
+        }
+
+        .pro-feature .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .pro-feature h4 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .pro-feature p {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Footer Disclaimer */
+        .footer-disclaimer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            line-height: 1.8;
+        }
+
+        .footer-disclaimer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-disclaimer strong {
+            color: var(--text-primary);
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .niche-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 968px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .niche-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .button-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1.1em;
+            }
+
+            .niche-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .time-display {
+                font-size: 1.8em;
+            }
+
+            .score-number {
+                font-size: 2.2em;
+            }
+
+            .calculate-btn {
+                padding: 20px 40px;
+                font-size: 1.2em;
+                width: 100%;
+            }
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* ========================================
+           DEVICE-SPECIFIC ENHANCEMENTS
+           ======================================== */
+        
+        /* Mobile Optimized Mode */
+        body.mobile-optimized h1 {
+            font-size: 2em;
+            line-height: 1.2;
+        }
+
+        body.mobile-optimized .subtitle {
+            font-size: 1em;
+        }
+
+        body.mobile-optimized .card {
+            padding: 25px 18px;
+            border-radius: 20px;
+        }
+
+        body.mobile-optimized .section-title h3 {
+            font-size: 1.3em;
+        }
+
+        body.mobile-optimized .calculate-btn {
+            width: 100%;
+            padding: 18px 40px;
+            font-size: 1.2em;
+        }
+
+        body.mobile-optimized .time-display {
+            font-size: 1.6em;
+        }
+
+        body.mobile-optimized .score-number {
+            font-size: 2em;
+        }
+
+        /* Desktop Optimized Mode */
+        body.desktop-optimized h1 {
+            font-size: 3.5em;
+        }
+
+        body.desktop-optimized .subtitle {
+            font-size: 1.3em;
+        }
+
+        body.desktop-optimized .card {
+            padding: 40px;
+        }
+
+        body.desktop-optimized .calculate-btn {
+            padding: 24px 60px;
+            font-size: 1.4em;
+        }
+
+        /* Ensure smooth transitions */
+        .container, .card, .calculate-btn, h1, .subtitle {
+            transition: all 0.3s ease;
+        }
+
+        /* ========================================
+           LOADING OVERLAY
+           ======================================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 10, 20, 0.92);
+            backdrop-filter: blur(12px);
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        [data-theme="light"] .loading-overlay {
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .loading-spinner-ring {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .loading-spinner-ring::before,
+        .loading-spinner-ring::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .loading-spinner-ring::before {
+            width: 100%; height: 100%;
+            border: 4px solid rgba(102, 126, 234, 0.15);
+        }
+
+        .loading-spinner-ring::after {
+            width: 100%; height: 100%;
+            border: 4px solid transparent;
+            border-top-color: #667eea;
+            border-right-color: #764ba2;
+            animation: spinRing 0.9s linear infinite;
+        }
+
+        @keyframes spinRing {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        .loading-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .loading-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .loading-step.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .loading-step .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gradient-start);
+            flex-shrink: 0;
+        }
+
+        .loading-step.done .step-dot {
+            background: #4ade80;
+        }
+
+        .loading-step.done {
+            color: #4ade80;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner-ring"></div>
+        <div class="loading-text">Analyzing your audience...</div>
+        <div class="loading-steps">
+            <div class="loading-step" id="lstep1"><div class="step-dot"></div>Scanning platform data</div>
+            <div class="loading-step" id="lstep2"><div class="step-dot"></div>Calculating timezone overlap</div>
+            <div class="loading-step" id="lstep3"><div class="step-dot"></div>Ranking engagement windows</div>
+            <div class="loading-step" id="lstep4"><div class="step-dot"></div>Generating your results</div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         DEVICE SELECTION SCREEN
+         ======================================== -->
+    <div class="device-selection-overlay" id="deviceSelectionOverlay">
+        <div class="device-selection-container">
+            <div class="device-selection-header">
+                <h1 class="device-selection-title">PeakPost</h1>
+                <p class="device-selection-subtitle">Choose your device for the optimal experience</p>
+            </div>
+
+            <div class="device-cards-wrapper">
+                <!-- Mobile Card -->
+                <div class="device-card" id="mobileCard">
+                    <span class="device-card-icon">📱</span>
+                    <h2 class="device-card-title">Mobile</h2>
+                    <p class="device-card-description">Optimized for phones and tablets</p>
+                    <ul class="device-card-features">
+                        <li>Single column layout</li>
+                        <li>Touch-friendly buttons</li>
+                        <li>Compact design</li>
+                        <li>Easy one-hand use</li>
+                    </ul>
+                </div>
+
+                <!-- Desktop Card (Recommended) -->
+                <div class="device-card recommended" id="desktopCard">
+                    <span class="device-card-icon">💻</span>
+                    <h2 class="device-card-title">Desktop</h2>
+                    <p class="device-card-description">Best experience for PC and laptops</p>
+                    <ul class="device-card-features">
+                        <li>Full-width multi-column layout</li>
+                        <li>See more at once</li>
+                        <li>Premium animations</li>
+                        <li>Optimal viewing experience</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="device-selection-footer">
+                <p class="device-selection-note">
+                    💡 You can switch between Mobile and Desktop mode anytime from <strong>Settings ⚙️</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn" id="settingsBtn">⚙️</button>
+
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay"></div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <div class="close-settings" id="closeSettings">✕</div>
+        </div>
+
+        <div class="settings-section">
+            <h3>🎨 Theme</h3>
+            <p>Choose your preferred color scheme</p>
+            <div class="settings-options">
+                <div class="settings-option active" id="darkMode">
+                    <span class="icon">🌙</span>
+                    <div class="label">Dark</div>
+                </div>
+                <div class="settings-option" id="lightMode">
+                    <span class="icon">☀️</span>
+                    <div class="label">Light</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>📱 Device Mode</h3>
+            <p>Switch between mobile and desktop layout</p>
+            <div class="settings-options">
+                <div class="settings-option" id="mobileModeSetting">
+                    <span class="icon">📱</span>
+                    <div class="label">Mobile</div>
+                </div>
+                <div class="settings-option" id="desktopModeSetting">
+                    <span class="icon">💻</span>
+                    <div class="label">Desktop</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animated background -->
+    <div class="bg-gradient"></div>
+    
+    <!-- Floating particles -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+    <div class="particle" style="left: 60%; animation-delay: 10s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 12s;"></div>
+    <div class="particle" style="left: 80%; animation-delay: 14s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 16s;"></div>
+
+    <div class="container" id="mainApp" style="display: none;">
+        <!-- Header -->
+        <header>
+            <h1>PeakPost</h1>
+            <p class="subtitle">Maximize your social media engagement with data-driven posting times</p>
+        </header>
+
+        <!-- Error message -->
+        <div class="error-box" id="errorBox"></div>
+
+        <!-- Step 1: Timezones -->
+        <div class="card" style="animation-delay: 0.1s;">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <div class="section-title">
+                    <h3>🌍 Where Are Your Followers?</h3>
+                    <p>Select all timezones where your audience is located</p>
+                </div>
+            </div>
+            <div class="checkbox-grid">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-pst" value="PST">
+                    <label class="checkbox-label" for="tz-pst">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">US West Coast (PST)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-est" value="EST">
+                    <label class="checkbox-label" for="tz-est">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">US East Coast (EST)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-cst" value="CST">
+                    <label class="checkbox-label" for="tz-cst">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">US Central (CST)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-gmt" value="GMT">
+                    <label class="checkbox-label" for="tz-gmt">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">UK (GMT)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-cet" value="CET">
+                    <label class="checkbox-label" for="tz-cet">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">Central Europe (CET)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-ist" value="IST">
+                    <label class="checkbox-label" for="tz-ist">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">India (IST)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-aest" value="AEST">
+                    <label class="checkbox-label" for="tz-aest">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">Australia East (AEST)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-jst" value="JST">
+                    <label class="checkbox-label" for="tz-jst">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">Japan (JST)</span>
+                    </label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="tz-brt" value="BRT">
+                    <label class="checkbox-label" for="tz-brt">
+                        <div class="checkbox-icon"></div>
+                        <span class="checkbox-text">Brazil (BRT)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Platform -->
+        <div class="card" style="animation-delay: 0.2s;">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <div class="section-title">
+                    <h3>📱 Choose Your Platform</h3>
+                    <p>Select the social media platform you're posting on</p>
+                </div>
+            </div>
+            <div class="button-grid" id="platformGroup">
+                <button class="option-btn" onclick="selectOption('platform', 'instagram')">Instagram</button>
+                <button class="option-btn" onclick="selectOption('platform', 'tiktok')">TikTok</button>
+                <button class="option-btn" onclick="selectOption('platform', 'youtube')">YouTube</button>
+                <button class="option-btn" onclick="selectOption('platform', 'twitter')">Twitter/X</button>
+                <button class="option-btn" onclick="selectOption('platform', 'facebook')">Facebook</button>
+                <button class="option-btn" onclick="selectOption('platform', 'linkedin')">LinkedIn</button>
+                <button class="option-btn" onclick="selectOption('platform', 'pinterest')">Pinterest</button>
+                <button class="option-btn" onclick="selectOption('platform', 'threads')">Threads</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Content Type -->
+        <div class="card" style="animation-delay: 0.3s;">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <div class="section-title">
+                    <h3>🎬 Content Type</h3>
+                    <p>What type of content are you creating?</p>
+                </div>
+            </div>
+            <div class="button-grid" id="contentTypeGroup">
+                <button class="option-btn" onclick="selectOption('contentType', 'short')">
+                    Short-Form Content
+                    <small>Reels, TikToks, Stories, Shorts (under 90 sec)</small>
+                </button>
+                <button class="option-btn" onclick="selectOption('contentType', 'long')">
+                    Long-Form Content
+                    <small>Feed posts, Carousels, Videos (over 90 sec)</small>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Day of Week -->
+        <div class="card" style="animation-delay: 0.4s;">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <div class="section-title">
+                    <h3>📅 Select Posting Day</h3>
+                    <p>Which day are you planning to post?</p>
+                </div>
+            </div>
+            <div class="button-grid" id="dayGroup">
+                <button class="option-btn" onclick="selectOption('day', 'monday')">Monday</button>
+                <button class="option-btn" onclick="selectOption('day', 'tuesday')">Tuesday</button>
+                <button class="option-btn" onclick="selectOption('day', 'wednesday')">Wednesday</button>
+                <button class="option-btn" onclick="selectOption('day', 'thursday')">Thursday</button>
+                <button class="option-btn" onclick="selectOption('day', 'friday')">Friday</button>
+                <button class="option-btn" onclick="selectOption('day', 'saturday')">Saturday</button>
+                <button class="option-btn" onclick="selectOption('day', 'sunday')">Sunday</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Niche -->
+        <div class="card" style="animation-delay: 0.5s;">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <div class="section-title">
+                    <h3>🎯 Content Niche</h3>
+                    <p>What's your content category?</p>
+                </div>
+            </div>
+            <div class="niche-grid" id="nicheGroup">
+                <button class="niche-btn" onclick="selectOption('niche', 'lifestyle')">Lifestyle</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'fashion')">Fashion</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'fitness')">Fitness</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'food')">Food</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'travel')">Travel</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'business')">Business</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'beauty')">Beauty</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'tech')">Tech</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'gaming')">Gaming</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'music')">Music</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'sports')">Sports</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'photography')">Photography</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'parenting')">Parenting</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'pets')">Pets</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'finance')">Finance</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'health')">Health</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'diy')">DIY/Crafts</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'comedy')">Comedy</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'motivation')">Motivation</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'news')">News</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'automotive')">Automotive</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'art')">Art</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'education')">Education</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'entertainment')">Entertainment</button>
+                <button class="niche-btn" onclick="selectOption('niche', 'other')">Other</button>
+            </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="calculate-wrapper">
+            <button class="calculate-btn" onclick="calculateBestTimes()">
+                🚀 Calculate Best Times
+            </button>
+            <button class="reset-btn" onclick="resetAll()" id="resetBtn" style="display:none;">
+                🔄 Reset
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-header" id="resultsHeader"></div>
+            <div id="timeSlots"></div>
+            <div class="tips-box" id="tipsBox"></div>
+            <div class="backup-box" id="backupBox"></div>
+            
+            <!-- Disclaimer -->
+            <div class="disclaimer-box">
+                <h3>⚠️ Important Disclaimer</h3>
+                <p><strong>No Guarantees:</strong> PeakPost provides data-driven posting time suggestions based on general social media engagement patterns and industry research. Results may vary significantly based on your specific audience, content quality, niche, platform algorithm changes, and numerous other factors.</p>
+                <p><strong>Not Professional Advice:</strong> These recommendations are for informational purposes only and should not be considered professional marketing advice. Your actual results depend on content quality, audience engagement, consistency, and platform-specific factors beyond posting times.</p>
+                <p><strong>Use at Your Own Risk:</strong> PeakPost is a tool to assist with content scheduling decisions. We make no claims about guaranteed engagement increases, follower growth, or business results. Success requires quality content, audience understanding, and strategic planning beyond just timing.</p>
+                <p><strong>Always Test:</strong> We recommend testing different posting times with your specific audience to find what works best for your unique situation.</p>
+            </div>
+
+            <!-- PeakPost Pro Teaser -->
+            <div class="pro-teaser">
+                <div class="pro-teaser-title">
+                    <h3>PeakPost Pro</h3>
+                    <span class="pro-badge">🚀 COMING SOON</span>
+                </div>
+                <p>Take your social media strategy to the next level with advanced analytics, automation, and personalized insights.</p>
+                
+                <div class="pro-features">
+                    <div class="pro-feature">
+                        <div class="icon">📊</div>
+                        <h4>Advanced Analytics</h4>
+                        <p>Deep dive into your performance metrics with detailed engagement reports</p>
+                    </div>
+                    <div class="pro-feature">
+                        <div class="icon">🤖</div>
+                        <h4>AI-Powered Insights</h4>
+                        <p>Get personalized recommendations based on your actual performance data</p>
+                    </div>
+                    <div class="pro-feature">
+                        <div class="icon">📅</div>
+                        <h4>Auto-Scheduling</h4>
+                        <p>Schedule posts automatically at optimal times across all platforms</p>
+                    </div>
+                    <div class="pro-feature">
+                        <div class="icon">🎯</div>
+                        <h4>Competitor Analysis</h4>
+                        <p>See when your competitors post and find gaps in the market</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Disclaimer -->
+        <div class="footer-disclaimer">
+            <p><strong>PeakPost</strong> © 2026 - Social Media Timing Tool</p>
+            <p>All recommendations are suggestions based on general data patterns. Individual results will vary.</p>
+            <p>Not responsible for engagement outcomes. Use responsibly and test with your audience.</p>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // DEVICE SELECTION & SETTINGS MANAGEMENT
+        // ========================================
+        
+        let deviceMode = null;
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply saved theme immediately
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            updateThemeUI();
+            
+            // Setup device selection
+            setupDeviceSelection();
+            
+            // Setup settings
+            setupSettings();
+        });
+
+        // ========================================
+        // DEVICE SELECTION
+        // ========================================
+        
+        function setupDeviceSelection() {
+            const mobileCard = document.getElementById('mobileCard');
+            const desktopCard = document.getElementById('desktopCard');
+            
+            desktopCard.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectDeviceMode('desktop');
+            });
+
+            mobileCard.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectDeviceMode('mobile');
+            });
+            
+            desktopCard.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectDeviceMode('desktop');
+            });
+
+            mobileCard.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectDeviceMode('mobile');
+            });
+            
+            [desktopCard, mobileCard].forEach(card => {
+                card.addEventListener('touchstart', function(e) {}, {passive: true});
+            });
+        }
+
+        function selectDeviceMode(mode) {
+            deviceMode = mode;
+            
+            // Update settings UI
+            updateDeviceModeUI(mode);
+            
+            // Hide device selection overlay
+            const overlay = document.getElementById('deviceSelectionOverlay');
+            overlay.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            overlay.style.opacity = '0';
+            overlay.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                
+                // Show main app
+                const mainApp = document.getElementById('mainApp');
+                mainApp.style.display = 'block';
+                mainApp.style.opacity = '0';
+                mainApp.style.transform = 'translateY(20px)';
+                
+                // Show settings button
+                const settingsBtn = document.getElementById('settingsBtn');
+                settingsBtn.classList.add('show');
+                
+                // Apply device-specific styles
+                applyDeviceStyles(mode);
+                
+                // Animate in
+                setTimeout(() => {
+                    mainApp.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    mainApp.style.opacity = '1';
+                    mainApp.style.transform = 'translateY(0)';
+                }, 50);
+            }, 500);
+        }
+
+        function applyDeviceStyles(mode) {
+            const container = document.querySelector('.container');
+            
+            if (mode === 'mobile') {
+                // Mobile optimizations
+                container.style.maxWidth = '600px';
+                container.style.padding = '30px 18px';
+                document.body.classList.add('mobile-optimized');
+                document.body.classList.remove('desktop-optimized');
+                
+                // Adjust font sizes for mobile
+                document.documentElement.style.fontSize = '15px';
+                
+                // Force single column layouts
+                const grids = document.querySelectorAll('.checkbox-grid, .button-grid');
+                grids.forEach(grid => {
+                    grid.style.gridTemplateColumns = '1fr';
+                    grid.style.gap = '12px';
+                });
+                
+                // Adjust niche grid for mobile
+                const nicheGrid = document.querySelector('.niche-grid');
+                if (nicheGrid) {
+                    nicheGrid.style.gridTemplateColumns = '1fr';
+                    nicheGrid.style.gap = '10px';
+                }
+                
+            } else {
+                // Desktop optimizations
+                container.style.maxWidth = '1400px';
+                container.style.padding = '40px 20px';
+                document.body.classList.add('desktop-optimized');
+                document.body.classList.remove('mobile-optimized');
+                
+                // Reset font size
+                document.documentElement.style.fontSize = '16px';
+                
+                // Allow multi-column layouts
+                const checkboxGrids = document.querySelectorAll('.checkbox-grid');
+                checkboxGrids.forEach(grid => {
+                    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+                });
+                
+                const buttonGrids = document.querySelectorAll('.button-grid');
+                buttonGrids.forEach(grid => {
+                    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
+                });
+                
+                // Niche grid - 5 columns on desktop
+                const nicheGrid = document.querySelector('.niche-grid');
+                if (nicheGrid) {
+                    nicheGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+                }
+            }
+        }
+
+        // ========================================
+        // SETTINGS PANEL
+        // ========================================
+        
+        function setupSettings() {
+            const settingsBtn = document.getElementById('settingsBtn');
+            const closeSettings = document.getElementById('closeSettings');
+            const overlay = document.getElementById('settingsOverlay');
+            const darkMode = document.getElementById('darkMode');
+            const lightMode = document.getElementById('lightMode');
+            const mobileModeBtn = document.getElementById('mobileModeSetting');
+            const desktopModeBtn = document.getElementById('desktopModeSetting');
+            
+            // Settings button click
+            settingsBtn.addEventListener('click', openSettings);
+            settingsBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                openSettings();
+            });
+            
+            // Close settings
+            closeSettings.addEventListener('click', closeSettingsPanel);
+            closeSettings.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                closeSettingsPanel();
+            });
+            
+            overlay.addEventListener('click', closeSettingsPanel);
+            
+            // Theme switching
+            darkMode.addEventListener('click', () => setTheme('dark'));
+            darkMode.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                setTheme('dark');
+            });
+            
+            lightMode.addEventListener('click', () => setTheme('light'));
+            lightMode.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                setTheme('light');
+            });
+            
+            // Device mode switching
+            mobileModeBtn.addEventListener('click', () => changeDeviceMode('mobile'));
+            mobileModeBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                changeDeviceMode('mobile');
+            });
+            
+            desktopModeBtn.addEventListener('click', () => changeDeviceMode('desktop'));
+            desktopModeBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                changeDeviceMode('desktop');
+            });
+        }
+
+        function openSettings() {
+            const panel = document.getElementById('settingsPanel');
+            const overlay = document.getElementById('settingsOverlay');
+            
+            panel.classList.add('open');
+            overlay.classList.add('active');
+        }
+
+        function closeSettingsPanel() {
+            const panel = document.getElementById('settingsPanel');
+            const overlay = document.getElementById('settingsOverlay');
+            
+            panel.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            try {
+                localStorage.setItem('theme', theme);
+            } catch(e) {
+                console.log('LocalStorage not available');
+            }
+            
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeUI();
+        }
+
+        function updateThemeUI() {
+            const darkMode = document.getElementById('darkMode');
+            const lightMode = document.getElementById('lightMode');
+            
+            if (currentTheme === 'dark') {
+                darkMode.classList.add('active');
+                lightMode.classList.remove('active');
+            } else {
+                lightMode.classList.add('active');
+                darkMode.classList.remove('active');
+            }
+        }
+
+        function changeDeviceMode(mode) {
+            deviceMode = mode;
+            updateDeviceModeUI(mode);
+            applyDeviceStyles(mode);
+            closeSettingsPanel();
+        }
+
+        function updateDeviceModeUI(mode) {
+            const mobileBtn = document.getElementById('mobileModeSetting');
+            const desktopBtn = document.getElementById('desktopModeSetting');
+            
+            if (mode === 'mobile') {
+                mobileBtn.classList.add('active');
+                desktopBtn.classList.remove('active');
+            } else {
+                desktopBtn.classList.add('active');
+                mobileBtn.classList.remove('active');
+            }
+        }
+
+        // ========================================
+        // ORIGINAL CALCULATOR CODE BELOW
+        // ========================================
+let selectedTimezones=[],selectedPlatform=null,selectedContentType=null,selectedDay=null,selectedNiche=null;const P={instagram:{short:{lifestyle:[{hour:11,score:92,reason:'Peak scroll time during late morning break'},{hour:14,score:95,reason:'Post-lunch engagement peak'},{hour:19,score:88,reason:'Evening wind-down period'}],fashion:[{hour:10,score:90,reason:'Morning outfit inspiration'},{hour:13,score:94,reason:'Lunch hour fashion fixes'},{hour:20,score:87,reason:'Evening fashion exploration'}],fitness:[{hour:6,score:93,reason:'Pre-workout motivation'},{hour:12,score:89,reason:'Midday workout inspiration'},{hour:17,score:91,reason:'Post-work gym prep'}],food:[{hour:11,score:94,reason:'Lunch planning peak'},{hour:17,score:96,reason:'Dinner inspiration time'},{hour:20,score:85,reason:'Evening food browsing'}],travel:[{hour:9,score:88,reason:'Morning daydreaming'},{hour:13,score:92,reason:'Lunch break escapism'},{hour:20,score:90,reason:'Evening trip planning'}],business:[{hour:8,score:91,reason:'Morning productivity peak'},{hour:12,score:88,reason:'Lunch hour learning'},{hour:18,score:86,reason:'Post-work reflection'}],beauty:[{hour:10,score:89,reason:'Morning beauty routine time'},{hour:14,score:93,reason:'Afternoon beauty browsing'},{hour:19,score:90,reason:'Evening skincare prep'}],tech:[{hour:9,score:87,reason:'Morning tech news check'},{hour:13,score:91,reason:'Lunch break tech browsing'},{hour:19,score:88,reason:'Evening tech exploration'}],gaming:[{hour:15,score:89,reason:'After-school gaming surge'},{hour:19,score:94,reason:'Prime gaming hour'},{hour:22,score:91,reason:'Late night gaming community'}],music:[{hour:10,score:86,reason:'Morning music discovery'},{hour:14,score:90,reason:'Afternoon music break'},{hour:20,score:92,reason:'Evening listening session'}],sports:[{hour:8,score:88,reason:'Morning sports news'},{hour:12,score:90,reason:'Lunch hour sports check'},{hour:18,score:93,reason:'Post-work sports content'}],photography:[{hour:10,score:89,reason:'Morning inspiration browsing'},{hour:14,score:92,reason:'Golden hour prep'},{hour:19,score:87,reason:'Evening editing session'}],parenting:[{hour:9,score:93,reason:'Post-dropoff parent time'},{hour:13,score:90,reason:'Nap time browsing'},{hour:20,score:88,reason:'Kids asleep time'}],pets:[{hour:10,score:88,reason:'Morning pet content time'},{hour:14,score:91,reason:'Afternoon pet browsing'},{hour:19,score:89,reason:'Evening pet time'}],finance:[{hour:8,score:92,reason:'Morning market check'},{hour:12,score:89,reason:'Midday trading activity'},{hour:17,score:87,reason:'Post-market analysis'}],health:[{hour:7,score:90,reason:'Morning health routine'},{hour:12,score:88,reason:'Lunch hour wellness'},{hour:18,score:86,reason:'Evening health focus'}],diy:[{hour:10,score:87,reason:'Weekend project planning'},{hour:14,score:91,reason:'Afternoon crafting time'},{hour:19,score:88,reason:'Evening creative time'}],comedy:[{hour:12,score:90,reason:'Lunch break laughs'},{hour:17,score:88,reason:'Post-work unwind'},{hour:21,score:93,reason:'Prime entertainment hour'}],motivation:[{hour:7,score:92,reason:'Morning motivation boost'},{hour:12,score:87,reason:'Midday motivation refresh'},{hour:19,score:89,reason:'Evening reflection time'}],news:[{hour:7,score:94,reason:'Morning news consumption'},{hour:12,score:89,reason:'Lunch hour news check'},{hour:18,score:91,reason:'Evening news wrap-up'}],automotive:[{hour:9,score:87,reason:'Morning commute inspiration'},{hour:13,score:90,reason:'Lunch break auto browsing'},{hour:19,score:88,reason:'Evening garage time'}],art:[{hour:10,score:88,reason:'Morning creative inspiration'},{hour:14,score:91,reason:'Afternoon art appreciation'},{hour:20,score:89,reason:'Evening creative time'}],education:[{hour:8,score:90,reason:'Morning learning motivation'},{hour:12,score:87,reason:'Lunch hour learning'},{hour:17,score:89,reason:'After-school study time'}],entertainment:[{hour:12,score:88,reason:'Lunch break entertainment'},{hour:18,score:91,reason:'Post-work entertainment'},{hour:21,score:93,reason:'Prime entertainment hour'}],other:[{hour:11,score:88,reason:'Late morning engagement'},{hour:14,score:91,reason:'Afternoon scroll session'},{hour:19,score:87,reason:'Evening browsing time'}]},long:{lifestyle:[{hour:11,score:90,reason:'Late morning reading time'},{hour:14,score:93,reason:'Afternoon deep dive'},{hour:19,score:86,reason:'Evening content consumption'}],fashion:[{hour:10,score:88,reason:'Morning fashion research'},{hour:13,score:92,reason:'Lunch hour fashion study'},{hour:20,score:85,reason:'Evening fashion planning'}],fitness:[{hour:6,score:91,reason:'Pre-workout deep dive'},{hour:12,score:87,reason:'Lunch workout planning'},{hour:17,score:89,reason:'Post-work routine review'}],food:[{hour:11,score:92,reason:'Recipe research time'},{hour:17,score:94,reason:'Dinner recipe planning'},{hour:20,score:83,reason:'Evening meal planning'}],travel:[{hour:9,score:86,reason:'Morning travel research'},{hour:13,score:90,reason:'Lunch break trip planning'},{hour:20,score:88,reason:'Evening destination research'}],business:[{hour:8,score:89,reason:'Morning business insights'},{hour:12,score:86,reason:'Lunch hour learning'},{hour:18,score:84,reason:'Post-work education'}],beauty:[{hour:10,score:87,reason:'Morning beauty education'},{hour:14,score:91,reason:'Afternoon beauty deep dive'},{hour:19,score:88,reason:'Evening routine planning'}],tech:[{hour:9,score:85,reason:'Morning tech research'},{hour:13,score:89,reason:'Lunch break tech study'},{hour:19,score:86,reason:'Evening tech deep dive'}],gaming:[{hour:15,score:87,reason:'After-school game research'},{hour:19,score:92,reason:'Evening gaming prep'},{hour:22,score:89,reason:'Late night guide reading'}],music:[{hour:10,score:84,reason:'Morning music exploration'},{hour:14,score:88,reason:'Afternoon music study'},{hour:20,score:90,reason:'Evening music deep dive'}],sports:[{hour:8,score:86,reason:'Morning sports analysis'},{hour:12,score:88,reason:'Lunch hour sports study'},{hour:18,score:91,reason:'Pre-game analysis'}],photography:[{hour:10,score:87,reason:'Morning technique study'},{hour:14,score:90,reason:'Afternoon learning session'},{hour:19,score:85,reason:'Evening technique review'}],parenting:[{hour:9,score:91,reason:'Post-dropoff reading time'},{hour:13,score:88,reason:'Nap time deep dive'},{hour:20,score:86,reason:'Evening parenting education'}],pets:[{hour:10,score:86,reason:'Morning pet care research'},{hour:14,score:89,reason:'Afternoon pet education'},{hour:19,score:87,reason:'Evening pet care planning'}],finance:[{hour:8,score:90,reason:'Morning financial education'},{hour:12,score:87,reason:'Midday financial planning'},{hour:17,score:85,reason:'Post-market study'}],health:[{hour:7,score:88,reason:'Morning wellness education'},{hour:12,score:86,reason:'Lunch hour health research'},{hour:18,score:84,reason:'Evening health planning'}],diy:[{hour:10,score:85,reason:'Morning project planning'},{hour:14,score:89,reason:'Afternoon project research'},{hour:19,score:86,reason:'Evening project study'}],comedy:[{hour:12,score:88,reason:'Lunch break entertainment'},{hour:17,score:86,reason:'Post-work comedy time'},{hour:21,score:91,reason:'Prime entertainment hour'}],motivation:[{hour:7,score:90,reason:'Morning inspiration reading'},{hour:12,score:85,reason:'Midday motivation boost'},{hour:19,score:87,reason:'Evening reflection time'}],news:[{hour:7,score:92,reason:'Morning news deep dive'},{hour:12,score:87,reason:'Lunch hour news study'},{hour:18,score:89,reason:'Evening news analysis'}],automotive:[{hour:9,score:85,reason:'Morning auto research'},{hour:13,score:88,reason:'Lunch break car study'},{hour:19,score:86,reason:'Evening auto planning'}],art:[{hour:10,score:86,reason:'Morning art education'},{hour:14,score:89,reason:'Afternoon art study'},{hour:20,score:87,reason:'Evening art research'}],education:[{hour:8,score:88,reason:'Morning study time'},{hour:12,score:85,reason:'Lunch hour learning'},{hour:17,score:87,reason:'After-school study session'}],entertainment:[{hour:12,score:86,reason:'Lunch break entertainment'},{hour:18,score:89,reason:'Post-work entertainment'},{hour:21,score:91,reason:'Prime entertainment hour'}],other:[{hour:11,score:86,reason:'Late morning engagement'},{hour:14,score:89,reason:'Afternoon deep reading'},{hour:19,score:85,reason:'Evening content time'}]}},tiktok:{short:{lifestyle:[{hour:7,score:89,reason:'Morning scroll time'},{hour:12,score:92,reason:'Lunch break entertainment'},{hour:19,score:95,reason:'Prime TikTok hour'}],fashion:[{hour:8,score:88,reason:'Morning outfit inspo'},{hour:13,score:91,reason:'Afternoon fashion time'},{hour:19,score:93,reason:'Evening fashion browsing'}],fitness:[{hour:6,score:94,reason:'Pre-workout motivation'},{hour:12,score:88,reason:'Lunch break fitness'},{hour:17,score:92,reason:'Post-work gym prep'}],food:[{hour:11,score:93,reason:'Pre-lunch food browsing'},{hour:17,score:96,reason:'Dinner time peak'},{hour:20,score:87,reason:'Evening food entertainment'}],travel:[{hour:9,score:87,reason:'Morning travel dreaming'},{hour:13,score:90,reason:'Lunch break wanderlust'},{hour:20,score:92,reason:'Evening trip planning'}],business:[{hour:7,score:90,reason:'Morning business tips'},{hour:12,score:88,reason:'Lunch hour learning'},{hour:18,score:85,reason:'Post-work business content'}],beauty:[{hour:9,score:88,reason:'Morning makeup tutorials'},{hour:14,score:92,reason:'Afternoon beauty discovery'},{hour:19,score:91,reason:'Evening skincare time'}],tech:[{hour:8,score:86,reason:'Morning tech updates'},{hour:13,score:89,reason:'Lunch break tech time'},{hour:19,score:90,reason:'Evening tech browsing'}],gaming:[{hour:15,score:90,reason:'After-school gaming'},{hour:19,score:96,reason:'Prime gaming hour'},{hour:22,score:93,reason:'Late night gaming content'}],music:[{hour:10,score:87,reason:'Morning music discovery'},{hour:14,score:91,reason:'Afternoon music time'},{hour:20,score:94,reason:'Evening music session'}],sports:[{hour:8,score:89,reason:'Morning sports highlights'},{hour:12,score:91,reason:'Lunch sports check'},{hour:19,score:94,reason:'Evening sports content'}],photography:[{hour:10,score:88,reason:'Morning photo inspiration'},{hour:14,score:91,reason:'Afternoon creative time'},{hour:19,score:87,reason:'Evening editing inspiration'}],parenting:[{hour:9,score:92,reason:'Post-dropoff scroll'},{hour:13,score:90,reason:'Nap time entertainment'},{hour:20,score:89,reason:'Kids asleep browsing'}],pets:[{hour:10,score:89,reason:'Morning pet content'},{hour:14,score:93,reason:'Afternoon pet entertainment'},{hour:19,score:90,reason:'Evening pet time'}],finance:[{hour:7,score:91,reason:'Morning financial tips'},{hour:12,score:88,reason:'Lunch money talk'},{hour:18,score:86,reason:'Post-work finance'}],health:[{hour:7,score:89,reason:'Morning wellness tips'},{hour:12,score:87,reason:'Lunch health check'},{hour:18,score:85,reason:'Evening health focus'}],diy:[{hour:10,score:86,reason:'Morning project inspiration'},{hour:14,score:90,reason:'Afternoon DIY time'},{hour:19,score:88,reason:'Evening project planning'}],comedy:[{hour:12,score:91,reason:'Lunch break laughs'},{hour:17,score:89,reason:'Post-work comedy'},{hour:20,score:95,reason:'Peak comedy hour'}],motivation:[{hour:7,score:93,reason:'Morning motivation boost'},{hour:12,score:88,reason:'Midday motivation'},{hour:19,score:90,reason:'Evening reflection'}],news:[{hour:7,score:94,reason:'Morning news catch-up'},{hour:12,score:90,reason:'Lunch news check'},{hour:18,score:92,reason:'Evening news wrap'}],automotive:[{hour:9,score:87,reason:'Morning car content'},{hour:13,score:90,reason:'Lunch break cars'},{hour:19,score:89,reason:'Evening auto time'}],art:[{hour:10,score:88,reason:'Morning art inspiration'},{hour:14,score:92,reason:'Afternoon art time'},{hour:20,score:89,reason:'Evening creative session'}],education:[{hour:8,score:89,reason:'Morning learning'},{hour:12,score:86,reason:'Lunch learning time'},{hour:17,score:88,reason:'After-school study'}],entertainment:[{hour:12,score:89,reason:'Lunch entertainment'},{hour:18,score:92,reason:'Post-work entertainment'},{hour:20,score:96,reason:'Prime entertainment hour'}],other:[{hour:11,score:88,reason:'Late morning scroll'},{hour:14,score:91,reason:'Afternoon TikTok time'},{hour:19,score:93,reason:'Evening prime time'}]},long:{lifestyle:[{hour:7,score:87,reason:'Morning commute viewing'},{hour:12,score:90,reason:'Lunch break watching'},{hour:19,score:93,reason:'Evening viewing time'}],fashion:[{hour:8,score:86,reason:'Morning fashion deep dive'},{hour:13,score:89,reason:'Afternoon fashion session'},{hour:19,score:91,reason:'Evening fashion watching'}],fitness:[{hour:6,score:92,reason:'Pre-workout videos'},{hour:12,score:86,reason:'Lunch workout watching'},{hour:17,score:90,reason:'Post-work fitness'}],food:[{hour:11,score:91,reason:'Pre-lunch recipe videos'},{hour:17,score:94,reason:'Dinner recipe time'},{hour:20,score:85,reason:'Evening food shows'}],travel:[{hour:9,score:85,reason:'Morning travel vlogs'},{hour:13,score:88,reason:'Lunch break travel'},{hour:20,score:90,reason:'Evening trip research'}],business:[{hour:7,score:88,reason:'Morning business education'},{hour:12,score:86,reason:'Lunch learning session'},{hour:18,score:83,reason:'Post-work business'}],beauty:[{hour:9,score:86,reason:'Morning beauty tutorials'},{hour:14,score:90,reason:'Afternoon beauty session'},{hour:19,score:89,reason:'Evening routine watching'}],tech:[{hour:8,score:84,reason:'Morning tech reviews'},{hour:13,score:87,reason:'Lunch tech deep dive'},{hour:19,score:88,reason:'Evening tech research'}],gaming:[{hour:15,score:88,reason:'After-school gaming'},{hour:19,score:94,reason:'Prime gaming viewing'},{hour:22,score:91,reason:'Late night gaming content'}],music:[{hour:10,score:85,reason:'Morning music sessions'},{hour:14,score:89,reason:'Afternoon music time'},{hour:20,score:92,reason:'Evening music watching'}],sports:[{hour:8,score:87,reason:'Morning sports analysis'},{hour:12,score:89,reason:'Lunch sports viewing'},{hour:19,score:92,reason:'Evening sports entertainment'}],photography:[{hour:10,score:86,reason:'Morning photo tutorials'},{hour:14,score:89,reason:'Afternoon photography session'},{hour:19,score:85,reason:'Evening photo learning'}],parenting:[{hour:9,score:90,reason:'Post-dropoff watching'},{hour:13,score:88,reason:'Nap time viewing'},{hour:20,score:87,reason:'Evening parent time'}],pets:[{hour:10,score:87,reason:'Morning pet content'},{hour:14,score:91,reason:'Afternoon pet watching'},{hour:19,score:88,reason:'Evening pet time'}],finance:[{hour:7,score:89,reason:'Morning financial education'},{hour:12,score:86,reason:'Lunch finance learning'},{hour:18,score:84,reason:'Post-work finance'}],health:[{hour:7,score:87,reason:'Morning wellness videos'},{hour:12,score:85,reason:'Lunch health session'},{hour:18,score:83,reason:'Evening health focus'}],diy:[{hour:10,score:84,reason:'Morning DIY tutorials'},{hour:14,score:88,reason:'Afternoon DIY session'},{hour:19,score:86,reason:'Evening project watching'}],comedy:[{hour:12,score:89,reason:'Lunch comedy time'},{hour:17,score:87,reason:'Post-work laughs'},{hour:20,score:93,reason:'Evening comedy hour'}],motivation:[{hour:7,score:91,reason:'Morning inspiration'},{hour:12,score:86,reason:'Midday motivation'},{hour:19,score:88,reason:'Evening reflection'}],news:[{hour:7,score:92,reason:'Morning news videos'},{hour:12,score:88,reason:'Lunch news watching'},{hour:18,score:90,reason:'Evening news wrap'}],automotive:[{hour:9,score:85,reason:'Morning car videos'},{hour:13,score:88,reason:'Lunch car watching'},{hour:19,score:87,reason:'Evening auto time'}],art:[{hour:10,score:86,reason:'Morning art tutorials'},{hour:14,score:90,reason:'Afternoon art session'},{hour:20,score:87,reason:'Evening creative watching'}],education:[{hour:8,score:87,reason:'Morning learning videos'},{hour:12,score:84,reason:'Lunch learning time'},{hour:17,score:86,reason:'After-school study'}],entertainment:[{hour:12,score:87,reason:'Lunch entertainment'},{hour:18,score:90,reason:'Post-work entertainment'},{hour:20,score:94,reason:'Prime viewing hour'}],other:[{hour:11,score:86,reason:'Late morning viewing'},{hour:14,score:89,reason:'Afternoon watching'},{hour:19,score:91,reason:'Evening viewing time'}]}},youtube:{short:{lifestyle:[{hour:12,score:89,reason:'Lunch break Shorts'},{hour:15,score:92,reason:'Afternoon scroll session'},{hour:20,score:90,reason:'Evening Shorts time'}],fashion:[{hour:11,score:87,reason:'Pre-lunch fashion'},{hour:14,score:91,reason:'Afternoon fashion Shorts'},{hour:19,score:88,reason:'Evening style browsing'}],fitness:[{hour:7,score:93,reason:'Morning workout Shorts'},{hour:12,score:88,reason:'Lunch fitness Shorts'},{hour:17,score:91,reason:'Pre-workout motivation'}],food:[{hour:11,score:92,reason:'Pre-lunch food Shorts'},{hour:17,score:95,reason:'Dinner time Shorts'},{hour:20,score:86,reason:'Evening food browsing'}],travel:[{hour:12,score:88,reason:'Lunch travel Shorts'},{hour:15,score:91,reason:'Afternoon wanderlust'},{hour:20,score:89,reason:'Evening travel dreams'}],business:[{hour:8,score:90,reason:'Morning business Shorts'},{hour:12,score:87,reason:'Lunch learning Shorts'},{hour:18,score:84,reason:'Post-work business'}],beauty:[{hour:10,score:88,reason:'Morning beauty Shorts'},{hour:14,score:92,reason:'Afternoon beauty time'},{hour:19,score:90,reason:'Evening beauty Shorts'}],tech:[{hour:9,score:86,reason:'Morning tech Shorts'},{hour:13,score:89,reason:'Lunch tech time'},{hour:19,score:88,reason:'Evening tech browsing'}],gaming:[{hour:15,score:91,reason:'After-school gaming Shorts'},{hour:19,score:95,reason:'Prime gaming Shorts hour'},{hour:22,score:92,reason:'Late night gaming'}],music:[{hour:11,score:87,reason:'Morning music Shorts'},{hour:14,score:90,reason:'Afternoon music time'},{hour:20,score:93,reason:'Evening music session'}],sports:[{hour:9,score:89,reason:'Morning sports Shorts'},{hour:12,score:91,reason:'Lunch sports check'},{hour:19,score:93,reason:'Evening sports Shorts'}],photography:[{hour:11,score:88,reason:'Morning photo Shorts'},{hour:14,score:91,reason:'Afternoon photo time'},{hour:19,score:87,reason:'Evening photo inspiration'}],parenting:[{hour:9,score:91,reason:'Post-dropoff Shorts'},{hour:13,score:89,reason:'Nap time Shorts'},{hour:20,score:88,reason:'Evening parent Shorts'}],pets:[{hour:11,score:89,reason:'Morning pet Shorts'},{hour:14,score:92,reason:'Afternoon pet entertainment'},{hour:19,score:90,reason:'Evening pet time'}],finance:[{hour:8,score:90,reason:'Morning financial Shorts'},{hour:12,score:87,reason:'Lunch money Shorts'},{hour:18,score:85,reason:'Post-work finance'}],health:[{hour:7,score:88,reason:'Morning wellness Shorts'},{hour:12,score:86,reason:'Lunch health Shorts'},{hour:18,score:84,reason:'Evening health focus'}],diy:[{hour:11,score:86,reason:'Morning DIY Shorts'},{hour:14,score:90,reason:'Afternoon DIY time'},{hour:19,score:88,reason:'Evening project Shorts'}],comedy:[{hour:12,score:90,reason:'Lunch comedy Shorts'},{hour:17,score:88,reason:'Post-work comedy'},{hour:20,score:94,reason:'Peak comedy Shorts hour'}],motivation:[{hour:7,score:92,reason:'Morning motivation Shorts'},{hour:12,score:87,reason:'Midday motivation'},{hour:19,score:89,reason:'Evening reflection'}],news:[{hour:7,score:93,reason:'Morning news Shorts'},{hour:12,score:89,reason:'Lunch news Shorts'},{hour:18,score:91,reason:'Evening news wrap'}],automotive:[{hour:10,score:87,reason:'Morning car Shorts'},{hour:13,score:90,reason:'Lunch car time'},{hour:19,score:88,reason:'Evening auto Shorts'}],art:[{hour:11,score:88,reason:'Morning art Shorts'},{hour:14,score:91,reason:'Afternoon art time'},{hour:20,score:89,reason:'Evening creative Shorts'}],education:[{hour:8,score:88,reason:'Morning learning Shorts'},{hour:12,score:85,reason:'Lunch learning time'},{hour:17,score:87,reason:'After-school Shorts'}],entertainment:[{hour:12,score:88,reason:'Lunch entertainment Shorts'},{hour:18,score:91,reason:'Post-work entertainment'},{hour:20,score:95,reason:'Prime Shorts hour'}],other:[{hour:12,score:88,reason:'Lunch Shorts browsing'},{hour:15,score:91,reason:'Afternoon Shorts time'},{hour:20,score:92,reason:'Evening Shorts session'}]},long:{lifestyle:[{hour:14,score:90,reason:'Afternoon video watching'},{hour:19,score:93,reason:'Evening viewing session'},{hour:21,score:95,reason:'Prime YouTube hour'}],fashion:[{hour:13,score:88,reason:'Afternoon fashion videos'},{hour:19,score:91,reason:'Evening fashion time'},{hour:21,score:89,reason:'Night fashion viewing'}],fitness:[{hour:7,score:92,reason:'Morning workout videos'},{hour:12,score:87,reason:'Lunch workout planning'},{hour:17,score:90,reason:'Pre-gym video watching'}],food:[{hour:11,score:91,reason:'Pre-lunch recipe videos'},{hour:17,score:94,reason:'Dinner planning videos'},{hour:20,score:88,reason:'Evening cooking shows'}],travel:[{hour:13,score:89,reason:'Afternoon travel vlogs'},{hour:19,score:92,reason:'Evening trip planning'},{hour:21,score:91,reason:'Night travel watching'}],business:[{hour:8,score:89,reason:'Morning business videos'},{hour:12,score:86,reason:'Lunch learning videos'},{hour:19,score:88,reason:'Evening business education'}],beauty:[{hour:13,score:89,reason:'Afternoon beauty videos'},{hour:19,score:92,reason:'Evening beauty session'},{hour:21,score:90,reason:'Night routine videos'}],tech:[{hour:13,score:87,reason:'Afternoon tech videos'},{hour:19,score:90,reason:'Evening tech deep dive'},{hour:21,score:89,reason:'Night tech research'}],gaming:[{hour:15,score:90,reason:'After-school gaming videos'},{hour:19,score:94,reason:'Prime gaming viewing'},{hour:22,score:96,reason:'Late night gaming content'}],music:[{hour:14,score:88,reason:'Afternoon music videos'},{hour:19,score:91,reason:'Evening music session'},{hour:21,score:93,reason:'Night music watching'}],sports:[{hour:13,score:89,reason:'Afternoon sports analysis'},{hour:19,score:93,reason:'Evening sports viewing'},{hour:21,score:92,reason:'Night sports entertainment'}],photography:[{hour:13,score:88,reason:'Afternoon photo tutorials'},{hour:19,score:91,reason:'Evening photography session'},{hour:21,score:87,reason:'Night photo learning'}],parenting:[{hour:9,score:90,reason:'Post-dropoff video time'},{hour:13,score:88,reason:'Nap time viewing'},{hour:20,score:91,reason:'Evening parent time'}],pets:[{hour:13,score:89,reason:'Afternoon pet videos'},{hour:19,score:92,reason:'Evening pet watching'},{hour:21,score:90,reason:'Night pet entertainment'}],finance:[{hour:8,score:89,reason:'Morning financial videos'},{hour:12,score:86,reason:'Lunch finance learning'},{hour:19,score:88,reason:'Evening finance education'}],health:[{hour:12,score:86,reason:'Lunch health videos'},{hour:19,score:88,reason:'Evening wellness session'},{hour:21,score:85,reason:'Night health focus'}],diy:[{hour:13,score:87,reason:'Afternoon DIY videos'},{hour:19,score:90,reason:'Evening DIY session'},{hour:21,score:88,reason:'Night project planning'}],comedy:[{hour:14,score:89,reason:'Afternoon comedy videos'},{hour:19,score:92,reason:'Evening comedy hour'},{hour:21,score:95,reason:'Peak comedy viewing'}],motivation:[{hour:8,score:90,reason:'Morning inspiration videos'},{hour:12,score:86,reason:'Midday motivation'},{hour:19,score:89,reason:'Evening reflection videos'}],news:[{hour:8,score:92,reason:'Morning news videos'},{hour:12,score:88,reason:'Lunch news watching'},{hour:19,score:91,reason:'Evening news deep dive'}],automotive:[{hour:13,score:87,reason:'Afternoon car videos'},{hour:19,score:90,reason:'Evening auto watching'},{hour:21,score:89,reason:'Night car videos'}],art:[{hour:13,score:88,reason:'Afternoon art videos'},{hour:19,score:91,reason:'Evening art session'},{hour:21,score:90,reason:'Night creative watching'}],education:[{hour:12,score:86,reason:'Lunch learning videos'},{hour:17,score:88,reason:'After-school study videos'},{hour:20,score:87,reason:'Evening study session'}],entertainment:[{hour:14,score:89,reason:'Afternoon entertainment videos'},{hour:19,score:93,reason:'Evening entertainment peak'},{hour:21,score:96,reason:'Prime YouTube hour'}],other:[{hour:14,score:88,reason:'Afternoon video watching'},{hour:19,score:91,reason:'Evening viewing time'},{hour:21,score:94,reason:'Prime viewing hour'}]}},twitter:{short:{lifestyle:[{hour:8,score:90,reason:'Morning Twitter check'},{hour:12,score:93,reason:'Lunch hour scrolling'},{hour:17,score:88,reason:'Post-work Twitter'}],fashion:[{hour:9,score:88,reason:'Morning fashion tweets'},{hour:12,score:91,reason:'Lunch fashion time'},{hour:17,score:87,reason:'Evening fashion check'}],fitness:[{hour:6,score:92,reason:'Early morning motivation'},{hour:12,score:89,reason:'Lunch fitness check'},{hour:17,score:90,reason:'Post-work gym prep'}],food:[{hour:11,score:91,reason:'Pre-lunch food tweets'},{hour:13,score:94,reason:'Lunch hour food talk'},{hour:18,score:87,reason:'Dinner time browsing'}],travel:[{hour:9,score:87,reason:'Morning travel inspiration'},{hour:12,score:90,reason:'Lunch travel talk'},{hour:17,score:88,reason:'Post-work travel planning'}],business:[{hour:8,score:94,reason:'Morning business news'},{hour:12,score:91,reason:'Lunch business updates'},{hour:17,score:87,reason:'Post-work business'}],beauty:[{hour:9,score:88,reason:'Morning beauty tweets'},{hour:12,score:90,reason:'Lunch beauty check'},{hour:18,score:86,reason:'Evening beauty browsing'}],tech:[{hour:9,score:92,reason:'Morning tech news'},{hour:12,score:94,reason:'Lunch tech time'},{hour:17,score:89,reason:'Post-work tech'}],gaming:[{hour:12,score:88,reason:'Lunch gaming tweets'},{hour:17,score:91,reason:'Post-work gaming'},{hour:20,score:93,reason:'Evening gaming talk'}],music:[{hour:9,score:87,reason:'Morning music tweets'},{hour:12,score:90,reason:'Lunch music time'},{hour:18,score:91,reason:'Evening music chat'}],sports:[{hour:8,score:91,reason:'Morning sports news'},{hour:12,score:93,reason:'Lunch sports talk'},{hour:17,score:94,reason:'Post-work sports'}],photography:[{hour:9,score:87,reason:'Morning photo tweets'},{hour:12,score:90,reason:'Lunch photo time'},{hour:18,score:88,reason:'Evening photo sharing'}],parenting:[{hour:9,score:91,reason:'Post-dropoff Twitter'},{hour:12,score:89,reason:'Lunch parent time'},{hour:20,score:87,reason:'Evening parent chat'}],pets:[{hour:9,score:88,reason:'Morning pet tweets'},{hour:12,score:91,reason:'Lunch pet time'},{hour:18,score:89,reason:'Evening pet content'}],finance:[{hour:8,score:95,reason:'Morning market open'},{hour:12,score:92,reason:'Midday trading'},{hour:16,score:90,reason:'Pre-market close'}],health:[{hour:8,score:89,reason:'Morning wellness tweets'},{hour:12,score:87,reason:'Lunch health check'},{hour:17,score:85,reason:'Post-work health'}],diy:[{hour:9,score:86,reason:'Morning DIY tweets'},{hour:12,score:89,reason:'Lunch DIY time'},{hour:18,score:87,reason:'Evening DIY planning'}],comedy:[{hour:9,score:88,reason:'Morning comedy tweets'},{hour:12,score:92,reason:'Lunch comedy hour'},{hour:18,score:90,reason:'Post-work comedy'}],motivation:[{hour:8,score:93,reason:'Morning motivation tweets'},{hour:12,score:88,reason:'Midday motivation'},{hour:17,score:86,reason:'Post-work motivation'}],news:[{hour:8,score:96,reason:'Morning news check'},{hour:12,score:94,reason:'Lunch news hour'},{hour:17,score:92,reason:'Evening news wrap'}],automotive:[{hour:9,score:87,reason:'Morning auto tweets'},{hour:12,score:90,reason:'Lunch car talk'},{hour:18,score:88,reason:'Evening auto time'}],art:[{hour:9,score:88,reason:'Morning art tweets'},{hour:12,score:90,reason:'Lunch art time'},{hour:19,score:89,reason:'Evening art sharing'}],education:[{hour:8,score:89,reason:'Morning education tweets'},{hour:12,score:87,reason:'Lunch learning time'},{hour:17,score:85,reason:'After-school Twitter'}],entertainment:[{hour:9,score:88,reason:'Morning entertainment tweets'},{hour:12,score:91,reason:'Lunch entertainment'},{hour:18,score:93,reason:'Evening entertainment buzz'}],other:[{hour:9,score:88,reason:'Morning Twitter check'},{hour:12,score:92,reason:'Lunch hour scrolling'},{hour:17,score:89,reason:'Post-work Twitter'}]},long:{lifestyle:[{hour:8,score:88,reason:'Morning thread reading'},{hour:12,score:91,reason:'Lunch hour threads'},{hour:17,score:86,reason:'Post-work reading'}],fashion:[{hour:9,score:86,reason:'Morning fashion threads'},{hour:12,score:89,reason:'Lunch fashion reading'},{hour:17,score:85,reason:'Evening fashion threads'}],fitness:[{hour:6,score:90,reason:'Early fitness threads'},{hour:12,score:87,reason:'Lunch fitness reading'},{hour:17,score:88,reason:'Pre-workout threads'}],food:[{hour:11,score:89,reason:'Pre-lunch food threads'},{hour:13,score:92,reason:'Lunch food discussions'},{hour:18,score:85,reason:'Dinner thread reading'}],travel:[{hour:9,score:85,reason:'Morning travel threads'},{hour:12,score:88,reason:'Lunch travel reading'},{hour:17,score:86,reason:'Post-work travel'}],business:[{hour:8,score:92,reason:'Morning business threads'},{hour:12,score:89,reason:'Lunch business reading'},{hour:17,score:85,reason:'Post-work business'}],beauty:[{hour:9,score:86,reason:'Morning beauty threads'},{hour:12,score:88,reason:'Lunch beauty reading'},{hour:18,score:84,reason:'Evening beauty threads'}],tech:[{hour:9,score:90,reason:'Morning tech threads'},{hour:12,score:92,reason:'Lunch tech reading'},{hour:17,score:87,reason:'Post-work tech'}],gaming:[{hour:12,score:86,reason:'Lunch gaming threads'},{hour:17,score:89,reason:'Post-work gaming reading'},{hour:20,score:91,reason:'Evening gaming discussions'}],music:[{hour:9,score:85,reason:'Morning music threads'},{hour:12,score:88,reason:'Lunch music reading'},{hour:18,score:89,reason:'Evening music discussions'}],sports:[{hour:8,score:89,reason:'Morning sports threads'},{hour:12,score:91,reason:'Lunch sports reading'},{hour:17,score:92,reason:'Post-work sports threads'}],photography:[{hour:9,score:85,reason:'Morning photo threads'},{hour:12,score:88,reason:'Lunch photo reading'},{hour:18,score:86,reason:'Evening photo threads'}],parenting:[{hour:9,score:89,reason:'Post-dropoff reading'},{hour:12,score:87,reason:'Lunch parent reading'},{hour:20,score:85,reason:'Evening parent threads'}],pets:[{hour:9,score:86,reason:'Morning pet threads'},{hour:12,score:89,reason:'Lunch pet reading'},{hour:18,score:87,reason:'Evening pet threads'}],finance:[{hour:8,score:93,reason:'Morning market threads'},{hour:12,score:90,reason:'Midday trading threads'},{hour:16,score:88,reason:'Pre-close analysis'}],health:[{hour:8,score:87,reason:'Morning wellness threads'},{hour:12,score:85,reason:'Lunch health reading'},{hour:17,score:83,reason:'Post-work health'}],diy:[{hour:9,score:84,reason:'Morning DIY threads'},{hour:12,score:87,reason:'Lunch DIY reading'},{hour:18,score:85,reason:'Evening DIY threads'}],comedy:[{hour:9,score:86,reason:'Morning comedy threads'},{hour:12,score:90,reason:'Lunch comedy reading'},{hour:18,score:88,reason:'Post-work comedy'}],motivation:[{hour:8,score:91,reason:'Morning inspiration threads'},{hour:12,score:86,reason:'Midday motivation reading'},{hour:17,score:84,reason:'Post-work motivation'}],news:[{hour:8,score:94,reason:'Morning news threads'},{hour:12,score:92,reason:'Lunch news reading'},{hour:17,score:90,reason:'Evening news analysis'}],automotive:[{hour:9,score:85,reason:'Morning auto threads'},{hour:12,score:88,reason:'Lunch car reading'},{hour:18,score:86,reason:'Evening auto threads'}],art:[{hour:9,score:86,reason:'Morning art threads'},{hour:12,score:88,reason:'Lunch art reading'},{hour:19,score:87,reason:'Evening art discussions'}],education:[{hour:8,score:87,reason:'Morning education threads'},{hour:12,score:85,reason:'Lunch learning reading'},{hour:17,score:83,reason:'After-school threads'}],entertainment:[{hour:9,score:86,reason:'Morning entertainment threads'},{hour:12,score:89,reason:'Lunch entertainment reading'},{hour:18,score:91,reason:'Evening entertainment buzz'}],other:[{hour:9,score:86,reason:'Morning thread reading'},{hour:12,score:90,reason:'Lunch hour reading'},{hour:17,score:87,reason:'Post-work threads'}]}},facebook:{short:{lifestyle:[{hour:9,score:88,reason:'Morning Facebook check'},{hour:13,score:92,reason:'Lunch hour engagement'},{hour:19,score:89,reason:'Evening family time'}],fashion:[{hour:10,score:86,reason:'Late morning browsing'},{hour:13,score:90,reason:'Afternoon fashion time'},{hour:19,score:87,reason:'Evening shopping browsing'}],fitness:[{hour:7,score:90,reason:'Morning fitness motivation'},{hour:12,score:87,reason:'Lunch fitness check'},{hour:18,score:88,reason:'Post-work gym prep'}],food:[{hour:11,score:91,reason:'Pre-lunch food browsing'},{hour:14,score:94,reason:'Afternoon food peak'},{hour:18,score:88,reason:'Dinner planning time'}],travel:[{hour:10,score:87,reason:'Morning travel dreaming'},{hour:13,score:90,reason:'Lunch travel inspiration'},{hour:19,score:89,reason:'Evening trip planning'}],business:[{hour:9,score:89,reason:'Morning business updates'},{hour:13,score:92,reason:'Lunch business time'},{hour:17,score:86,reason:'Post-work business'}],beauty:[{hour:10,score:87,reason:'Morning beauty browsing'},{hour:14,score:91,reason:'Afternoon beauty peak'},{hour:19,score:88,reason:'Evening beauty time'}],tech:[{hour:10,score:86,reason:'Morning tech updates'},{hour:13,score:89,reason:'Lunch tech time'},{hour:19,score:87,reason:'Evening tech browsing'}],gaming:[{hour:13,score:87,reason:'Lunch gaming check'},{hour:17,score:90,reason:'Post-work gaming'},{hour:20,score:92,reason:'Evening gaming time'}],music:[{hour:10,score:86,reason:'Morning music sharing'},{hour:13,score:89,reason:'Lunch music time'},{hour:19,score:90,reason:'Evening music session'}],sports:[{hour:9,score:89,reason:'Morning sports check'},{hour:13,score:92,reason:'Lunch sports time'},{hour:18,score:93,reason:'Pre-game engagement'}],photography:[{hour:10,score:87,reason:'Morning photo sharing'},{hour:13,score:90,reason:'Afternoon photo time'},{hour:19,score:88,reason:'Evening photo browsing'}],parenting:[{hour:9,score:92,reason:'Post-dropoff browsing'},{hour:13,score:90,reason:'Afternoon parent time'},{hour:20,score:88,reason:'Evening parent browsing'}],pets:[{hour:10,score:88,reason:'Morning pet content'},{hour:14,score:92,reason:'Afternoon pet peak'},{hour:19,score:89,reason:'Evening pet time'}],finance:[{hour:9,score:90,reason:'Morning financial check'},{hour:13,score:88,reason:'Lunch finance time'},{hour:17,score:86,reason:'Post-work finance'}],health:[{hour:9,score:88,reason:'Morning wellness check'},{hour:13,score:86,reason:'Lunch health time'},{hour:18,score:84,reason:'Evening health focus'}],diy:[{hour:10,score:86,reason:'Morning DIY browsing'},{hour:14,score:90,reason:'Afternoon DIY peak'},{hour:19,score:88,reason:'Evening project planning'}],comedy:[{hour:12,score:89,reason:'Lunch comedy time'},{hour:14,score:91,reason:'Afternoon entertainment'},{hour:19,score:93,reason:'Evening comedy hour'}],motivation:[{hour:9,score:91,reason:'Morning inspiration'},{hour:13,score:87,reason:'Midday motivation'},{hour:18,score:85,reason:'Post-work motivation'}],news:[{hour:8,score:92,reason:'Morning news check'},{hour:13,score:94,reason:'Lunch news peak'},{hour:18,score:90,reason:'Evening news wrap'}],automotive:[{hour:10,score:86,reason:'Morning car browsing'},{hour:13,score:89,reason:'Lunch car time'},{hour:19,score:87,reason:'Evening auto browsing'}],art:[{hour:10,score:87,reason:'Morning art sharing'},{hour:13,score:90,reason:'Afternoon art time'},{hour:19,score:88,reason:'Evening art browsing'}],education:[{hour:9,score:88,reason:'Morning education check'},{hour:13,score:86,reason:'Lunch learning time'},{hour:17,score:84,reason:'After-school browsing'}],entertainment:[{hour:12,score:88,reason:'Lunch entertainment'},{hour:14,score:92,reason:'Afternoon entertainment peak'},{hour:19,score:94,reason:'Evening entertainment'}],other:[{hour:10,score:87,reason:'Morning browsing'},{hour:13,score:91,reason:'Lunch hour peak'},{hour:19,score:89,reason:'Evening family time'}]},long:{lifestyle:[{hour:9,score:86,reason:'Morning article reading'},{hour:13,score:90,reason:'Lunch deep dive'},{hour:19,score:87,reason:'Evening reading time'}],fashion:[{hour:10,score:84,reason:'Late morning reading'},{hour:13,score:88,reason:'Afternoon fashion reading'},{hour:19,score:85,reason:'Evening fashion study'}],fitness:[{hour:7,score:88,reason:'Morning fitness articles'},{hour:12,score:85,reason:'Lunch fitness reading'},{hour:18,score:86,reason:'Pre-workout reading'}],food:[{hour:11,score:89,reason:'Pre-lunch recipe reading'},{hour:14,score:92,reason:'Afternoon food articles'},{hour:18,score:86,reason:'Dinner recipe reading'}],travel:[{hour:10,score:85,reason:'Morning travel articles'},{hour:13,score:88,reason:'Lunch travel reading'},{hour:19,score:87,reason:'Evening trip research'}],business:[{hour:9,score:87,reason:'Morning business articles'},{hour:13,score:90,reason:'Lunch business reading'},{hour:17,score:84,reason:'Post-work business'}],beauty:[{hour:10,score:85,reason:'Morning beauty articles'},{hour:14,score:89,reason:'Afternoon beauty reading'},{hour:19,score:86,reason:'Evening beauty study'}],tech:[{hour:10,score:84,reason:'Morning tech articles'},{hour:13,score:87,reason:'Lunch tech reading'},{hour:19,score:85,reason:'Evening tech research'}],gaming:[{hour:13,score:85,reason:'Lunch gaming articles'},{hour:17,score:88,reason:'Post-work gaming reading'},{hour:20,score:90,reason:'Evening gaming articles'}],music:[{hour:10,score:84,reason:'Morning music articles'},{hour:13,score:87,reason:'Lunch music reading'},{hour:19,score:88,reason:'Evening music study'}],sports:[{hour:9,score:87,reason:'Morning sports articles'},{hour:13,score:90,reason:'Lunch sports reading'},{hour:18,score:91,reason:'Pre-game reading'}],photography:[{hour:10,score:85,reason:'Morning photo articles'},{hour:13,score:88,reason:'Afternoon photo reading'},{hour:19,score:86,reason:'Evening photo study'}],parenting:[{hour:9,score:90,reason:'Post-dropoff reading'},{hour:13,score:88,reason:'Afternoon parent reading'},{hour:20,score:86,reason:'Evening parent study'}],pets:[{hour:10,score:86,reason:'Morning pet articles'},{hour:14,score:90,reason:'Afternoon pet reading'},{hour:19,score:87,reason:'Evening pet study'}],finance:[{hour:9,score:88,reason:'Morning financial articles'},{hour:13,score:86,reason:'Lunch finance reading'},{hour:17,score:84,reason:'Post-work finance'}],health:[{hour:9,score:86,reason:'Morning wellness articles'},{hour:13,score:84,reason:'Lunch health reading'},{hour:18,score:82,reason:'Evening health study'}],diy:[{hour:10,score:84,reason:'Morning DIY articles'},{hour:14,score:88,reason:'Afternoon DIY reading'},{hour:19,score:86,reason:'Evening project study'}],comedy:[{hour:12,score:87,reason:'Lunch comedy articles'},{hour:14,score:89,reason:'Afternoon entertainment reading'},{hour:19,score:91,reason:'Evening comedy time'}],motivation:[{hour:9,score:89,reason:'Morning inspiration articles'},{hour:13,score:85,reason:'Midday motivation reading'},{hour:18,score:83,reason:'Post-work motivation'}],news:[{hour:8,score:90,reason:'Morning news articles'},{hour:13,score:92,reason:'Lunch news reading'},{hour:18,score:88,reason:'Evening news study'}],automotive:[{hour:10,score:84,reason:'Morning auto articles'},{hour:13,score:87,reason:'Lunch car reading'},{hour:19,score:85,reason:'Evening auto study'}],art:[{hour:10,score:85,reason:'Morning art articles'},{hour:13,score:88,reason:'Afternoon art reading'},{hour:19,score:86,reason:'Evening art study'}],education:[{hour:9,score:86,reason:'Morning education articles'},{hour:13,score:84,reason:'Lunch learning reading'},{hour:17,score:82,reason:'After-school reading'}],entertainment:[{hour:12,score:86,reason:'Lunch entertainment articles'},{hour:14,score:90,reason:'Afternoon entertainment reading'},{hour:19,score:92,reason:'Evening entertainment'}],other:[{hour:10,score:85,reason:'Morning article reading'},{hour:13,score:89,reason:'Lunch deep reading'},{hour:19,score:87,reason:'Evening reading time'}]}},linkedin:{short:{lifestyle:[{hour:8,score:87,reason:'Morning commute browsing'},{hour:12,score:90,reason:'Lunch hour professional time'},{hour:17,score:88,reason:'End of workday'}],fashion:[{hour:8,score:85,reason:'Morning professional fashion'},{hour:12,score:88,reason:'Lunch fashion browsing'},{hour:17,score:86,reason:'Post-work fashion'}],fitness:[{hour:7,score:89,reason:'Pre-work fitness'},{hour:12,score:87,reason:'Lunch fitness check'},{hour:18,score:85,reason:'Post-work wellness'}],food:[{hour:12,score:91,reason:'Lunch hour food content'},{hour:13,score:89,reason:'Post-lunch browsing'},{hour:17,score:84,reason:'End of day'}],travel:[{hour:8,score:86,reason:'Morning travel inspiration'},{hour:12,score:88,reason:'Lunch travel browsing'},{hour:17,score:87,reason:'Post-work travel'}],business:[{hour:8,score:94,reason:'Morning business news'},{hour:12,score:96,reason:'Lunch business peak'},{hour:17,score:92,reason:'End of workday'}],beauty:[{hour:8,score:84,reason:'Morning professional beauty'},{hour:12,score:86,reason:'Lunch beauty browsing'},{hour:17,score:83,reason:'Post-work beauty'}],tech:[{hour:8,score:91,reason:'Morning tech updates'},{hour:12,score:94,reason:'Lunch tech time'},{hour:17,score:90,reason:'End of workday tech'}],gaming:[{hour:12,score:84,reason:'Lunch gaming check'},{hour:17,score:86,reason:'Post-work gaming'},{hour:18,score:85,reason:'Evening gaming industry'}],music:[{hour:8,score:85,reason:'Morning music industry'},{hour:12,score:87,reason:'Lunch music time'},{hour:17,score:86,reason:'Post-work music'}],sports:[{hour:8,score:86,reason:'Morning sports business'},{hour:12,score:89,reason:'Lunch sports time'},{hour:17,score:88,reason:'Post-work sports'}],photography:[{hour:8,score:85,reason:'Morning creative industry'},{hour:12,score:88,reason:'Lunch creative time'},{hour:17,score:87,reason:'Post-work creative'}],parenting:[{hour:9,score:87,reason:'Post-dropoff work time'},{hour:12,score:85,reason:'Lunch parent browsing'},{hour:17,score:84,reason:'Post-work parenting'}],pets:[{hour:8,score:84,reason:'Morning pet industry'},{hour:12,score:86,reason:'Lunch pet browsing'},{hour:17,score:85,reason:'Post-work pets'}],finance:[{hour:8,score:96,reason:'Morning market open'},{hour:12,score:94,reason:'Lunch finance peak'},{hour:16,score:91,reason:'Pre-market close'}],health:[{hour:8,score:88,reason:'Morning health industry'},{hour:12,score:86,reason:'Lunch wellness time'},{hour:17,score:84,reason:'Post-work health'}],diy:[{hour:8,score:83,reason:'Morning maker industry'},{hour:12,score:85,reason:'Lunch DIY browsing'},{hour:17,score:84,reason:'Post-work DIY'}],comedy:[{hour:12,score:86,reason:'Lunch entertainment'},{hour:13,score:84,reason:'Post-lunch break'},{hour:17,score:83,reason:'End of workday'}],motivation:[{hour:8,score:92,reason:'Morning motivation'},{hour:12,score:89,reason:'Midday motivation'},{hour:17,score:87,reason:'Post-work motivation'}],news:[{hour:8,score:93,reason:'Morning news check'},{hour:12,score:95,reason:'Lunch news peak'},{hour:17,score:91,reason:'End of day news'}],automotive:[{hour:8,score:85,reason:'Morning auto industry'},{hour:12,score:88,reason:'Lunch auto time'},{hour:17,score:87,reason:'Post-work automotive'}],art:[{hour:8,score:86,reason:'Morning creative industry'},{hour:12,score:89,reason:'Lunch art time'},{hour:17,score:88,reason:'Post-work creative'}],education:[{hour:8,score:90,reason:'Morning education industry'},{hour:12,score:88,reason:'Lunch learning time'},{hour:17,score:86,reason:'Post-work education'}],entertainment:[{hour:8,score:85,reason:'Morning entertainment industry'},{hour:12,score:88,reason:'Lunch entertainment'},{hour:17,score:87,reason:'Post-work entertainment'}],other:[{hour:8,score:89,reason:'Morning LinkedIn check'},{hour:12,score:92,reason:'Lunch hour peak'},{hour:17,score:90,reason:'End of workday'}]},long:{lifestyle:[{hour:8,score:85,reason:'Morning article reading'},{hour:12,score:88,reason:'Lunch deep reading'},{hour:17,score:86,reason:'End of day reading'}],fashion:[{hour:8,score:83,reason:'Morning fashion articles'},{hour:12,score:86,reason:'Lunch fashion reading'},{hour:17,score:84,reason:'Post-work fashion'}],fitness:[{hour:7,score:87,reason:'Pre-work wellness'},{hour:12,score:85,reason:'Lunch wellness reading'},{hour:18,score:83,reason:'Post-work fitness'}],food:[{hour:12,score:89,reason:'Lunch food articles'},{hour:13,score:87,reason:'Post-lunch reading'},{hour:17,score:82,reason:'End of day'}],travel:[{hour:8,score:84,reason:'Morning travel articles'},{hour:12,score:86,reason:'Lunch travel reading'},{hour:17,score:85,reason:'Post-work travel'}],business:[{hour:8,score:92,reason:'Morning business articles'},{hour:12,score:94,reason:'Lunch business reading'},{hour:17,score:90,reason:'End of workday reading'}],beauty:[{hour:8,score:82,reason:'Morning beauty articles'},{hour:12,score:84,reason:'Lunch beauty reading'},{hour:17,score:81,reason:'Post-work beauty'}],tech:[{hour:8,score:89,reason:'Morning tech articles'},{hour:12,score:92,reason:'Lunch tech reading'},{hour:17,score:88,reason:'End of workday tech'}],gaming:[{hour:12,score:82,reason:'Lunch gaming articles'},{hour:17,score:84,reason:'Post-work gaming'},{hour:18,score:83,reason:'Evening industry reading'}],music:[{hour:8,score:83,reason:'Morning music articles'},{hour:12,score:85,reason:'Lunch music reading'},{hour:17,score:84,reason:'Post-work music'}],sports:[{hour:8,score:84,reason:'Morning sports articles'},{hour:12,score:87,reason:'Lunch sports reading'},{hour:17,score:86,reason:'Post-work sports'}],photography:[{hour:8,score:83,reason:'Morning creative articles'},{hour:12,score:86,reason:'Lunch creative reading'},{hour:17,score:85,reason:'Post-work creative'}],parenting:[{hour:9,score:85,reason:'Post-dropoff reading'},{hour:12,score:83,reason:'Lunch parent reading'},{hour:17,score:82,reason:'Post-work parenting'}],pets:[{hour:8,score:82,reason:'Morning pet articles'},{hour:12,score:84,reason:'Lunch pet reading'},{hour:17,score:83,reason:'Post-work pets'}],finance:[{hour:8,score:94,reason:'Morning financial articles'},{hour:12,score:92,reason:'Lunch finance reading'},{hour:16,score:89,reason:'Pre-close analysis'}],health:[{hour:8,score:86,reason:'Morning health articles'},{hour:12,score:84,reason:'Lunch wellness reading'},{hour:17,score:82,reason:'Post-work health'}],diy:[{hour:8,score:81,reason:'Morning maker articles'},{hour:12,score:83,reason:'Lunch DIY reading'},{hour:17,score:82,reason:'Post-work DIY'}],comedy:[{hour:12,score:84,reason:'Lunch entertainment articles'},{hour:13,score:82,reason:'Post-lunch reading'},{hour:17,score:81,reason:'End of workday'}],motivation:[{hour:8,score:90,reason:'Morning motivation articles'},{hour:12,score:87,reason:'Midday motivation reading'},{hour:17,score:85,reason:'Post-work motivation'}],news:[{hour:8,score:91,reason:'Morning news articles'},{hour:12,score:93,reason:'Lunch news reading'},{hour:17,score:89,reason:'End of day news'}],automotive:[{hour:8,score:83,reason:'Morning auto articles'},{hour:12,score:86,reason:'Lunch auto reading'},{hour:17,score:85,reason:'Post-work automotive'}],art:[{hour:8,score:84,reason:'Morning creative articles'},{hour:12,score:87,reason:'Lunch art reading'},{hour:17,score:86,reason:'Post-work creative'}],education:[{hour:8,score:88,reason:'Morning education articles'},{hour:12,score:86,reason:'Lunch learning reading'},{hour:17,score:84,reason:'Post-work education'}],entertainment:[{hour:8,score:83,reason:'Morning entertainment articles'},{hour:12,score:86,reason:'Lunch entertainment reading'},{hour:17,score:85,reason:'Post-work entertainment'}],other:[{hour:8,score:87,reason:'Morning article reading'},{hour:12,score:90,reason:'Lunch deep reading'},{hour:17,score:88,reason:'End of workday reading'}]}},pinterest:{short:{lifestyle:[{hour:14,score:90,reason:'Afternoon inspiration browsing'},{hour:19,score:93,reason:'Evening planning time'},{hour:21,score:91,reason:'Night browsing session'}],fashion:[{hour:14,score:92,reason:'Afternoon outfit planning'},{hour:19,score:94,reason:'Evening fashion time'},{hour:21,score:90,reason:'Night style browsing'}],fitness:[{hour:13,score:88,reason:'Lunch fitness planning'},{hour:18,score:91,reason:'Evening workout prep'},{hour:20,score:89,reason:'Night fitness browsing'}],food:[{hour:14,score:94,reason:'Afternoon recipe hunting'},{hour:18,score:96,reason:'Dinner planning peak'},{hour:20,score:92,reason:'Evening meal planning'}],travel:[{hour:14,score:91,reason:'Afternoon travel dreaming'},{hour:19,score:93,reason:'Evening trip planning'},{hour:21,score:94,reason:'Night wanderlust'}],business:[{hour:12,score:87,reason:'Lunch business ideas'},{hour:19,score:89,reason:'Evening business planning'},{hour:21,score:88,reason:'Night strategy browsing'}],beauty:[{hour:14,score:93,reason:'Afternoon beauty inspiration'},{hour:19,score:95,reason:'Evening beauty time'},{hour:21,score:92,reason:'Night beauty planning'}],tech:[{hour:13,score:86,reason:'Lunch tech browsing'},{hour:19,score:88,reason:'Evening tech inspiration'},{hour:21,score:87,reason:'Night tech planning'}],gaming:[{hour:15,score:88,reason:'Afternoon gaming ideas'},{hour:19,score:90,reason:'Evening gaming planning'},{hour:21,score:92,reason:'Night gaming browsing'}],music:[{hour:14,score:87,reason:'Afternoon music inspiration'},{hour:19,score:90,reason:'Evening music time'},{hour:21,score:91,reason:'Night music browsing'}],sports:[{hour:13,score:87,reason:'Lunch sports browsing'},{hour:18,score:89,reason:'Evening sports planning'},{hour:20,score:88,reason:'Night sports browsing'}],photography:[{hour:14,score:91,reason:'Afternoon photo inspiration'},{hour:19,score:93,reason:'Evening photography time'},{hour:21,score:90,reason:'Night photo browsing'}],parenting:[{hour:13,score:90,reason:'Afternoon parent browsing'},{hour:19,score:92,reason:'Evening parenting time'},{hour:21,score:94,reason:'Night planning time'}],pets:[{hour:14,score:90,reason:'Afternoon pet browsing'},{hour:19,score:92,reason:'Evening pet time'},{hour:21,score:91,reason:'Night pet planning'}],finance:[{hour:12,score:88,reason:'Lunch money planning'},{hour:19,score:90,reason:'Evening financial planning'},{hour:21,score:89,reason:'Night finance browsing'}],health:[{hour:13,score:88,reason:'Afternoon wellness browsing'},{hour:19,score:90,reason:'Evening health planning'},{hour:21,score:89,reason:'Night wellness browsing'}],diy:[{hour:14,score:95,reason:'Afternoon project hunting'},{hour:19,score:96,reason:'Evening DIY peak'},{hour:21,score:94,reason:'Night project planning'}],comedy:[{hour:14,score:86,reason:'Afternoon entertainment browsing'},{hour:19,score:88,reason:'Evening comedy time'},{hour:21,score:90,reason:'Night entertainment'}],motivation:[{hour:13,score:90,reason:'Afternoon inspiration'},{hour:19,score:92,reason:'Evening motivation time'},{hour:21,score:93,reason:'Night reflection'}],news:[{hour:13,score:85,reason:'Lunch news browsing'},{hour:19,score:87,reason:'Evening news time'},{hour:21,score:86,reason:'Night news browsing'}],automotive:[{hour:14,score:88,reason:'Afternoon car browsing'},{hour:19,score:90,reason:'Evening auto time'},{hour:21,score:89,reason:'Night car browsing'}],art:[{hour:14,score:93,reason:'Afternoon art inspiration'},{hour:19,score:95,reason:'Evening art time'},{hour:21,score:94,reason:'Night creative browsing'}],education:[{hour:13,score:88,reason:'Afternoon learning browsing'},{hour:19,score:90,reason:'Evening education time'},{hour:21,score:89,reason:'Night study planning'}],entertainment:[{hour:14,score:89,reason:'Afternoon entertainment browsing'},{hour:19,score:92,reason:'Evening entertainment peak'},{hour:21,score:93,reason:'Night entertainment'}],other:[{hour:14,score:90,reason:'Afternoon browsing peak'},{hour:19,score:93,reason:'Evening inspiration time'},{hour:21,score:94,reason:'Night browsing session'}]},long:{lifestyle:[{hour:14,score:88,reason:'Afternoon board creation'},{hour:19,score:91,reason:'Evening planning session'},{hour:21,score:89,reason:'Night project planning'}],fashion:[{hour:14,score:90,reason:'Afternoon wardrobe planning'},{hour:19,score:92,reason:'Evening style session'},{hour:21,score:88,reason:'Night style organization'}],fitness:[{hour:13,score:86,reason:'Lunch workout planning'},{hour:18,score:89,reason:'Evening fitness organization'},{hour:20,score:87,reason:'Night training planning'}],food:[{hour:14,score:92,reason:'Afternoon meal planning'},{hour:18,score:94,reason:'Evening cooking planning'},{hour:20,score:90,reason:'Night recipe organization'}],travel:[{hour:14,score:89,reason:'Afternoon trip planning'},{hour:19,score:91,reason:'Evening travel organization'},{hour:21,score:92,reason:'Night trip planning'}],business:[{hour:12,score:85,reason:'Lunch business planning'},{hour:19,score:87,reason:'Evening business organization'},{hour:21,score:86,reason:'Night strategy planning'}],beauty:[{hour:14,score:91,reason:'Afternoon beauty organization'},{hour:19,score:93,reason:'Evening beauty planning'},{hour:21,score:90,reason:'Night beauty boards'}],tech:[{hour:13,score:84,reason:'Lunch tech planning'},{hour:19,score:86,reason:'Evening tech organization'},{hour:21,score:85,reason:'Night tech planning'}],gaming:[{hour:15,score:86,reason:'Afternoon gaming organization'},{hour:19,score:88,reason:'Evening gaming planning'},{hour:21,score:90,reason:'Night gaming boards'}],music:[{hour:14,score:85,reason:'Afternoon music organization'},{hour:19,score:88,reason:'Evening music planning'},{hour:21,score:89,reason:'Night music boards'}],sports:[{hour:13,score:85,reason:'Lunch sports planning'},{hour:18,score:87,reason:'Evening sports organization'},{hour:20,score:86,reason:'Night training boards'}],photography:[{hour:14,score:89,reason:'Afternoon photo organization'},{hour:19,score:91,reason:'Evening photography planning'},{hour:21,score:88,reason:'Night photo boards'}],parenting:[{hour:13,score:88,reason:'Afternoon parent planning'},{hour:19,score:90,reason:'Evening parenting organization'},{hour:21,score:92,reason:'Night activity planning'}],pets:[{hour:14,score:88,reason:'Afternoon pet planning'},{hour:19,score:90,reason:'Evening pet organization'},{hour:21,score:89,reason:'Night pet boards'}],finance:[{hour:12,score:86,reason:'Lunch financial planning'},{hour:19,score:88,reason:'Evening finance organization'},{hour:21,score:87,reason:'Night budget planning'}],health:[{hour:13,score:86,reason:'Afternoon wellness planning'},{hour:19,score:88,reason:'Evening health organization'},{hour:21,score:87,reason:'Night wellness boards'}],diy:[{hour:14,score:93,reason:'Afternoon project organization'},{hour:19,score:94,reason:'Evening DIY planning'},{hour:21,score:92,reason:'Night project boards'}],comedy:[{hour:14,score:84,reason:'Afternoon entertainment boards'},{hour:19,score:86,reason:'Evening comedy organization'},{hour:21,score:88,reason:'Night entertainment boards'}],motivation:[{hour:13,score:88,reason:'Afternoon inspiration boards'},{hour:19,score:90,reason:'Evening motivation organization'},{hour:21,score:91,reason:'Night reflection boards'}],news:[{hour:13,score:83,reason:'Lunch news boards'},{hour:19,score:85,reason:'Evening news organization'},{hour:21,score:84,reason:'Night news boards'}],automotive:[{hour:14,score:86,reason:'Afternoon car planning'},{hour:19,score:88,reason:'Evening auto organization'},{hour:21,score:87,reason:'Night car boards'}],art:[{hour:14,score:91,reason:'Afternoon art organization'},{hour:19,score:93,reason:'Evening art planning'},{hour:21,score:92,reason:'Night creative boards'}],education:[{hour:13,score:86,reason:'Afternoon learning boards'},{hour:19,score:88,reason:'Evening education organization'},{hour:21,score:87,reason:'Night study boards'}],entertainment:[{hour:14,score:87,reason:'Afternoon entertainment boards'},{hour:19,score:90,reason:'Evening entertainment organization'},{hour:21,score:91,reason:'Night fun boards'}],other:[{hour:14,score:88,reason:'Afternoon board creation'},{hour:19,score:91,reason:'Evening organization session'},{hour:21,score:92,reason:'Night planning boards'}]}},threads:{short:{lifestyle:[{hour:9,score:89,reason:'Morning Threads check'},{hour:12,score:92,reason:'Lunch hour scrolling'},{hour:19,score:90,reason:'Evening browsing time'}],fashion:[{hour:9,score:87,reason:'Morning fashion check'},{hour:12,score:90,reason:'Lunch fashion time'},{hour:19,score:88,reason:'Evening style browsing'}],fitness:[{hour:7,score:92,reason:'Early morning motivation'},{hour:12,score:88,reason:'Lunch fitness check'},{hour:18,score:90,reason:'Post-work gym prep'}],food:[{hour:11,score:91,reason:'Pre-lunch food browsing'},{hour:13,score:94,reason:'Lunch hour food talk'},{hour:18,score:89,reason:'Dinner time browsing'}],travel:[{hour:9,score:88,reason:'Morning travel inspiration'},{hour:12,score:91,reason:'Lunch travel talk'},{hour:19,score:90,reason:'Evening trip planning'}],business:[{hour:8,score:91,reason:'Morning business check'},{hour:12,score:93,reason:'Lunch business updates'},{hour:17,score:89,reason:'Post-work business'}],beauty:[{hour:9,score:88,reason:'Morning beauty check'},{hour:12,score:91,reason:'Lunch beauty time'},{hour:19,score:89,reason:'Evening beauty browsing'}],tech:[{hour:9,score:90,reason:'Morning tech check'},{hour:12,score:93,reason:'Lunch tech time'},{hour:18,score:91,reason:'Post-work tech'}],gaming:[{hour:12,score:88,reason:'Lunch gaming check'},{hour:18,score:91,reason:'Post-work gaming'},{hour:20,score:93,reason:'Evening gaming talk'}],music:[{hour:9,score:87,reason:'Morning music check'},{hour:12,score:90,reason:'Lunch music time'},{hour:19,score:92,reason:'Evening music chat'}],sports:[{hour:8,score:90,reason:'Morning sports check'},{hour:12,score:92,reason:'Lunch sports talk'},{hour:18,score:94,reason:'Post-work sports'}],photography:[{hour:9,score:88,reason:'Morning photo browsing'},{hour:12,score:90,reason:'Lunch photo time'},{hour:19,score:89,reason:'Evening photo sharing'}],parenting:[{hour:9,score:91,reason:'Post-dropoff browsing'},{hour:12,score:89,reason:'Lunch parent time'},{hour:20,score:88,reason:'Evening parent chat'}],pets:[{hour:9,score:89,reason:'Morning pet posts'},{hour:12,score:91,reason:'Lunch pet time'},{hour:19,score:90,reason:'Evening pet content'}],finance:[{hour:8,score:93,reason:'Morning market check'},{hour:12,score:91,reason:'Midday trading'},{hour:17,score:89,reason:'Pre-close check'}],health:[{hour:8,score:89,reason:'Morning wellness check'},{hour:12,score:87,reason:'Lunch health time'},{hour:18,score:85,reason:'Post-work health'}],diy:[{hour:10,score:86,reason:'Morning DIY browsing'},{hour:12,score:89,reason:'Lunch DIY time'},{hour:19,score:88,reason:'Evening DIY planning'}],comedy:[{hour:9,score:88,reason:'Morning comedy check'},{hour:12,score:92,reason:'Lunch comedy hour'},{hour:19,score:91,reason:'Evening comedy'}],motivation:[{hour:8,score:92,reason:'Morning motivation check'},{hour:12,score:88,reason:'Midday motivation'},{hour:18,score:86,reason:'Post-work motivation'}],news:[{hour:8,score:94,reason:'Morning news check'},{hour:12,score:93,reason:'Lunch news hour'},{hour:18,score:91,reason:'Evening news wrap'}],automotive:[{hour:9,score:87,reason:'Morning auto check'},{hour:12,score:90,reason:'Lunch car talk'},{hour:19,score:89,reason:'Evening auto time'}],art:[{hour:9,score:88,reason:'Morning art browsing'},{hour:12,score:91,reason:'Lunch art time'},{hour:19,score:90,reason:'Evening art sharing'}],education:[{hour:8,score:89,reason:'Morning education check'},{hour:12,score:87,reason:'Lunch learning time'},{hour:17,score:85,reason:'After-school browsing'}],entertainment:[{hour:9,score:88,reason:'Morning entertainment check'},{hour:12,score:92,reason:'Lunch entertainment'},{hour:19,score:94,reason:'Evening entertainment buzz'}],other:[{hour:9,score:89,reason:'Morning Threads check'},{hour:12,score:93,reason:'Lunch hour scrolling'},{hour:19,score:91,reason:'Evening browsing'}]},long:{lifestyle:[{hour:9,score:87,reason:'Morning thread reading'},{hour:12,score:90,reason:'Lunch hour threads'},{hour:19,score:88,reason:'Evening reading time'}],fashion:[{hour:9,score:85,reason:'Morning fashion threads'},{hour:12,score:88,reason:'Lunch fashion reading'},{hour:19,score:86,reason:'Evening fashion threads'}],fitness:[{hour:7,score:90,reason:'Early fitness threads'},{hour:12,score:86,reason:'Lunch fitness reading'},{hour:18,score:88,reason:'Pre-workout threads'}],food:[{hour:11,score:89,reason:'Pre-lunch food threads'},{hour:13,score:92,reason:'Lunch food discussions'},{hour:18,score:87,reason:'Dinner thread reading'}],travel:[{hour:9,score:86,reason:'Morning travel threads'},{hour:12,score:89,reason:'Lunch travel reading'},{hour:19,score:88,reason:'Evening travel threads'}],business:[{hour:8,score:89,reason:'Morning business threads'},{hour:12,score:91,reason:'Lunch business reading'},{hour:17,score:87,reason:'Post-work business'}],beauty:[{hour:9,score:86,reason:'Morning beauty threads'},{hour:12,score:89,reason:'Lunch beauty reading'},{hour:19,score:87,reason:'Evening beauty threads'}],tech:[{hour:9,score:88,reason:'Morning tech threads'},{hour:12,score:91,reason:'Lunch tech reading'},{hour:18,score:89,reason:'Post-work tech'}],gaming:[{hour:12,score:86,reason:'Lunch gaming threads'},{hour:18,score:89,reason:'Post-work gaming reading'},{hour:20,score:91,reason:'Evening gaming discussions'}],music:[{hour:9,score:85,reason:'Morning music threads'},{hour:12,score:88,reason:'Lunch music reading'},{hour:19,score:90,reason:'Evening music discussions'}],sports:[{hour:8,score:88,reason:'Morning sports threads'},{hour:12,score:90,reason:'Lunch sports reading'},{hour:18,score:92,reason:'Post-work sports threads'}],photography:[{hour:9,score:86,reason:'Morning photo threads'},{hour:12,score:88,reason:'Lunch photo reading'},{hour:19,score:87,reason:'Evening photo threads'}],parenting:[{hour:9,score:89,reason:'Post-dropoff reading'},{hour:12,score:87,reason:'Lunch parent reading'},{hour:20,score:86,reason:'Evening parent threads'}],pets:[{hour:9,score:87,reason:'Morning pet threads'},{hour:12,score:89,reason:'Lunch pet reading'},{hour:19,score:88,reason:'Evening pet threads'}],finance:[{hour:8,score:91,reason:'Morning market threads'},{hour:12,score:89,reason:'Midday trading threads'},{hour:17,score:87,reason:'Pre-close analysis'}],health:[{hour:8,score:87,reason:'Morning wellness threads'},{hour:12,score:85,reason:'Lunch health reading'},{hour:18,score:83,reason:'Post-work health'}],diy:[{hour:10,score:84,reason:'Morning DIY threads'},{hour:12,score:87,reason:'Lunch DIY reading'},{hour:19,score:86,reason:'Evening DIY threads'}],comedy:[{hour:9,score:86,reason:'Morning comedy threads'},{hour:12,score:90,reason:'Lunch comedy reading'},{hour:19,score:89,reason:'Evening comedy'}],motivation:[{hour:8,score:90,reason:'Morning inspiration threads'},{hour:12,score:86,reason:'Midday motivation reading'},{hour:18,score:84,reason:'Post-work motivation'}],news:[{hour:8,score:92,reason:'Morning news threads'},{hour:12,score:91,reason:'Lunch news reading'},{hour:18,score:89,reason:'Evening news analysis'}],automotive:[{hour:9,score:85,reason:'Morning auto threads'},{hour:12,score:88,reason:'Lunch car reading'},{hour:19,score:87,reason:'Evening auto threads'}],art:[{hour:9,score:86,reason:'Morning art threads'},{hour:12,score:89,reason:'Lunch art reading'},{hour:19,score:88,reason:'Evening art discussions'}],education:[{hour:8,score:87,reason:'Morning education threads'},{hour:12,score:85,reason:'Lunch learning reading'},{hour:17,score:83,reason:'After-school threads'}],entertainment:[{hour:9,score:86,reason:'Morning entertainment threads'},{hour:12,score:90,reason:'Lunch entertainment reading'},{hour:19,score:92,reason:'Evening entertainment buzz'}],other:[{hour:9,score:87,reason:'Morning thread reading'},{hour:12,score:91,reason:'Lunch hour reading'},{hour:19,score:89,reason:'Evening threads'}]}}};function selectOption(t,v){const grp=t==='niche'?'nicheGroup':t+'Group';document.querySelectorAll(`#${grp} .option-btn, #${grp} .niche-btn`).forEach(b=>b.classList.remove('selected'));event.target.classList.add('selected');if(t==='platform')selectedPlatform=v;else if(t==='contentType')selectedContentType=v;else if(t==='day')selectedDay=v;else if(t==='niche')selectedNiche=v}
+
+function resetAll(){
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
+  document.querySelectorAll('.option-btn.selected, .niche-btn.selected').forEach(b=>b.classList.remove('selected'));
+  selectedTimezones=[];selectedPlatform=null;selectedContentType=null;selectedDay=null;selectedNiche=null;
+  document.getElementById('resultsSection').style.display='none';
+  document.getElementById('timeSlots').innerHTML='';
+  document.getElementById('tipsBox').innerHTML='';
+  document.getElementById('backupBox').innerHTML='';
+  document.getElementById('resultsHeader').innerHTML='';
+  document.getElementById('resetBtn').style.display='none';
+  document.getElementById('errorBox').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showLoading(callback) {
+  const overlay = document.getElementById('loadingOverlay');
+  const steps = ['lstep1','lstep2','lstep3','lstep4'];
+  overlay.classList.add('active');
+  steps.forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('visible','done');
+  });
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < steps.length) {
+      document.getElementById(steps[i]).classList.add('visible');
+      if (i > 0) document.getElementById(steps[i-1]).classList.add('done');
+      i++;
+    } else {
+      clearInterval(interval);
+      document.getElementById(steps[steps.length-1]).classList.add('done');
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        callback();
+      }, 400);
+    }
+  }, 380);
+}
+
+function calculateBestTimes(){
+  const eb=document.getElementById('errorBox');
+  selectedTimezones=Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c=>c.value);
+  if(selectedTimezones.length===0||!selectedPlatform||!selectedContentType||!selectedDay||!selectedNiche){
+    eb.textContent='⚠️ Please complete all 5 steps: Select at least one timezone, choose a platform, content type, posting day, and content niche.';
+    eb.style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+  eb.style.display='none';
+  const times=P[selectedPlatform][selectedContentType][selectedNiche].map(t=>({...t})).sort((a,b)=>b.score-a.score);
+  showLoading(() => {
+    displayResults(times);
+    document.getElementById('resetBtn').style.display='block';
+  });
+}function displayResults(times){const platformNames={instagram:'Instagram',tiktok:'TikTok',youtube:'YouTube',twitter:'Twitter/X',facebook:'Facebook',linkedin:'LinkedIn',pinterest:'Pinterest',threads:'Threads'};const contentNames={short:'Short-Form Content',long:'Long-Form Content'};const dayNames={monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday'};const rh=document.getElementById('resultsHeader');rh.innerHTML=`<h2>🎯 Your Optimal Posting Times</h2><div class="results-info"><div class="info-badge"><strong>Platform:</strong> ${platformNames[selectedPlatform]}</div><div class="info-badge"><strong>Content:</strong> ${contentNames[selectedContentType]}</div><div class="info-badge"><strong>Day:</strong> ${dayNames[selectedDay]}</div><div class="info-badge"><strong>Audience:</strong> ${selectedTimezones.join(', ')}</div></div>`;const ts=document.getElementById('timeSlots');const medals=['🥇','🥈','🥉'];const classes=['gold','silver','bronze'];ts.innerHTML='';times.forEach((t,i)=>{const h=t.hour;const ap=h>=12?'PM':'AM';const h12=h%12||12;const time=`${h12}:00 ${ap}`;const range=`${h12}:00 ${ap} - ${h12}:59 ${ap}`;ts.innerHTML+=`<div class="time-slot ${classes[i]}"><div class="time-header"><div class="time-info"><div class="medal">${medals[i]}</div><div class="time-display">${time}</div><div class="time-range">${range}</div></div><div class="score-display"><div class="score-number">${t.score}%</div><div class="score-label">Engagement</div></div></div><div class="progress-container"><div class="progress-bar" style="width:${t.score}%"></div></div><div class="reason-card"><strong>💡 Why This Time Works</strong><p>${t.reason}</p></div></div>`});document.getElementById('tipsBox').innerHTML=`<h3>💡 Pro Tips for ${platformNames[selectedPlatform]}</h3><ul><li>Post consistently at these peak times for maximum results</li><li>Test different time slots over 2-3 weeks to optimize for YOUR specific audience</li><li>Engage with comments within the first hour to boost algorithm visibility</li><li>Use platform analytics to track which times work best for you</li><li>Consider multiple timezones if your audience is global</li><li>Schedule posts in advance to maintain consistency</li><li>Quality content always matters more than timing alone</li><li>Monitor engagement patterns and adjust your strategy accordingly</li><li>Weekend vs weekday timing can vary significantly - test both</li></ul>`;document.getElementById('backupBox').innerHTML=`<h3>🔄 Backup Time Slots</h3><p>If you miss your prime posting windows, these alternative times still offer solid engagement:</p><ul><li><strong>Early Morning (6-8 AM):</strong> Catch early risers and morning commuters</li><li><strong>Mid-Afternoon (2-4 PM):</strong> Target afternoon break scrollers</li><li><strong>Late Evening (8-10 PM):</strong> Reach night owls during wind-down browsing</li></ul>`;document.getElementById('resultsSection').style.display='block';document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'})}
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9cd01ec2d960ac19","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.9.1","token":"5070e21320304a1ba2b0a42ce9682840"}' crossorigin="anonymous"></script>
+</body>
+</html>
